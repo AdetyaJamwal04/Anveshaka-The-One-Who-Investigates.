@@ -1,3 +1,10 @@
+"""
+FastAPI server exposing the DeepSearch pipeline as REST endpoints.
+
+Provides a blocking POST endpoint for full research runs and
+a Server-Sent Events (SSE) streaming endpoint for real-time progress.
+"""
+
 import os
 import json
 import asyncio

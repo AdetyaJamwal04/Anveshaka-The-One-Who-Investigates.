@@ -1,3 +1,7 @@
+"""
+Application configuration — loads API keys and model settings from environment.
+"""
+
 from dotenv import load_dotenv
 import os
 

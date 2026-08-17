@@ -1,3 +1,11 @@
+"""
+LangGraph-based research pipeline.
+
+Defines the state graph that orchestrates all agents through the
+full research lifecycle: synthesis → decomposition → iterative
+search/extract/reflect loop → report generation.
+"""
+
 import sys
 import os
 from datetime import datetime
@@ -152,7 +160,7 @@ app = workflow.compile()
 
 if __name__ == "__main__":
     async def run_research():
-        test_query = "Impact of mephentermin on digestion, hormonal health and overall body functioning. Describe in detail the health complications it might lead to over a perdio of continuous use."
+        test_query = "What are the latest breakthroughs in nuclear fusion energy?"
         print(f"Starting LangGraph run for query: '{test_query}'")
 
         inputs = {"query": test_query}

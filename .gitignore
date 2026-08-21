@@ -8,3 +8,5 @@ reports/
 test_direct.py
 test_stream.py
 .gemini/
+personal_run/
+search_local.py

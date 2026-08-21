@@ -38,8 +38,11 @@ Report Structure & Quality Requirements:
    - Provide a clean, numbered list of references at the end matching the provided Source Mapping.
 
 Formatting & Tone:
-- Maintain an authoritative, objective, and analytically rigorous tone.
-- Avoid superficial 1-paragraph summaries. Provide depth, substance, and clarity.
+- Maintain an authoritative, strictly objective, and analytically rigorous tone.
+- Avoid Inherent Bias & Promotional Language: Strip away marketing hype, sensationalism, and loaded rhetoric. Present findings neutrally.
+- Balanced Perspectives: Where topics involve debates, commercial competition, trade-offs, or conflicting evidence, represent all major viewpoints with proportionate empirical weight.
+- Objective Attribution of Disputed Claims: When assertions are qualitative, contested, or commercially motivated, explicitly attribute them to their source (e.g., "According to [1]...", "Conversely, critics argue [2]...") rather than stating them as indisputable facts.
+- Depth & Substance: Avoid superficial 1-paragraph summaries. Provide depth, nuance, and clarity.
 """
 
 def _build_evidence_block(store: KnowledgeStore) -> Tuple[str, Dict[str, Tuple[str, int]]]:

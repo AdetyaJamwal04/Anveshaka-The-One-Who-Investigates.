@@ -19,28 +19,22 @@ class EvidenceBatch(BaseModel):
     evidence: List[_RawEvidence]
 
 
-SYSTEM_PROMPT = """You are an evidence extraction specialist. You will be given a sub-question
-and a batch of source documents, each labeled with a short source id.
+SYSTEM_PROMPT = """You are a senior intelligence and research extraction specialist. You will be given a research sub-question and a batch of source documents (each labeled with a source id like src_1, src_2).
 
-Your job is to extract the specific factual claims from these sources that
-are relevant to answering the sub-question.
+Your job is to extract comprehensive, high-density factual evidence claims that thoroughly answer the sub-question.
 
-Rules:
-- Extract claims only from sources that actually contain relevant
-  information. If a source has nothing relevant to the sub-question
-  (e.g., institutional boilerplate, marketing copy, navigation text, an
-  unrelated topic), contribute ZERO claims from that source. Do not force
-  an extraction just because the source is present in the batch.
-- Each claim must be a concise, self-contained factual statement in your
-  own words -- not a verbatim quote from the source.
-- A single source may yield zero, one, or multiple claims, depending on how
-  much relevant information it actually contains.
-- Do not infer, speculate, or add information not present in the source
-  content.
-- Do not merge claims from different sources into one claim -- each claim
-  must be traceable to exactly one source.
-- Reference each source using its exact source id as given (e.g. "src_1").
-  Do not alter, abbreviate, or invent source ids.
+Extraction Standards:
+1. Information Density: Do NOT oversimplify or produce shallow 1-sentence summaries. Retain critical specifics:
+   - Quantitative data (percentages, statistics, sample sizes, metrics, dates, dosages, costs, dollar amounts).
+   - Technical & Mechanistic details (underlying mechanisms, biological/chemical pathways, system architectures, causal chains).
+   - Context & Nuance (conditions under which findings hold, notable exceptions, expert attributions, empirical study findings).
+2. Granularity: A rich source document should yield MULTIPLE detailed claims exploring different facets of the sub-question.
+3. Relevance: Extract claims ONLY from sources with genuine relevance to the sub-question. If a source is off-topic, promotional, or boilerplate, contribute ZERO claims from that source.
+4. Accuracy & Attribution:
+   - Each claim must be strictly faithful to the source content (no hallucination or speculation).
+   - Each claim must be attributed to exactly ONE source using its exact source id (e.g., "src_1").
+   - Do NOT merge claims from different sources into a single claim.
+5. Self-Contained: Each claim must be clear and meaningful on its own.
 """
 
 USER_PROMPT_TEMPLATE = """Sub-question: {sub_question_text}

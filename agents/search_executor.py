@@ -58,12 +58,25 @@ def _is_low_quality_content(
     return False
 
 
-async def _execute_single_query(query_string: str, max_results: int = 5) -> dict:
+async def _execute_single_query(query_string: str, max_results: int = 5, search_depth: str = "advanced") -> dict:
     """
     Calls Tavily for a single query string and returns the raw response dict.
+    Uses 'advanced' search depth by default to extract deep, informative page text.
     """
     async with TAVILY_SEMAPHORE:
-        return await tavily_client.search(query=query_string, max_results=max_results)
+        try:
+            return await tavily_client.search(
+                query=query_string,
+                search_depth=search_depth,
+                max_results=max_results,
+            )
+        except Exception as e:
+            print(f"[search_executor] Advanced search error for '{query_string}' ({e}), falling back to basic...")
+            return await tavily_client.search(
+                query=query_string,
+                search_depth="basic",
+                max_results=max_results,
+            )
 
 
 async def execute_and_clean_searches(

@@ -160,7 +160,7 @@ app = workflow.compile()
 
 if __name__ == "__main__":
     async def run_research():
-        test_query = "What are the latest breakthroughs in nuclear fusion energy?"
+        test_query = "Compare the coconut water made available by the two companies, namely Raw Pressery and Yu !, in terms of taste, nutritional value, chemicals used and packaging. Which one is better and a healthier option?"
         print(f"Starting LangGraph run for query: '{test_query}'")
 
         inputs = {"query": test_query}

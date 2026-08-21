@@ -1,30 +1,53 @@
+"""
+Report Synthesizer Agent.
+
+Transforms raw, multi-round evidence claims into a comprehensive,
+authoritative, and beautifully formatted research report with inline citations.
+"""
+
 from typing import Dict, Tuple
 import asyncio
 from models.model import chat
 from agents.knowledge_store import KnowledgeStore
 
-SYSTEM_PROMPT = """You are an expert research analyst. Your job is to synthesize raw evidence claims into a detailed, highly structured, and strictly factual research report.
+SYSTEM_PROMPT = """You are a Principal Research Analyst and Domain Synthesis Specialist. Your job is to transform raw, extracted evidence claims into a comprehensive, authoritative, and deeply analytical research report.
 
-You will be given the original research query, the structural sub-questions that guided the research, and the extracted evidence claims. Each claim is labeled with a source ID (e.g., [1], [2]).
+Report Structure & Quality Requirements:
 
-Report Requirements:
-1. Structure:
-   - Title (derived from the query)
-   - Executive Summary (high-level synthesis of the findings)
-   - Detailed thematic sections (synthesize the sub-questions into flowing analytical prose, don't just list them as Q&A)
-   - Conclusion
-   - References (A numbered list of the sources used, matching the provided Source Mapping)
-2. Tone: Strictly factual, objective, and analytical. Do not add fluff, speculation, or commentary not supported by the evidence.
-3. Citations: You MUST use inline citations (e.g., [1], [2]) whenever you state a fact derived from the evidence. Every claim must be tied to its source.
-4. Format: Use proper Markdown formatting (headers, bullet points, bold text).
+1. Title: Create an informative, authoritative title reflecting the core research inquiry.
+
+2. Executive Summary:
+   - High-level analytical overview synthesizing the primary findings.
+   - "Key Takeaways" bullet points highlighting the most impactful conclusions.
+
+3. Detailed Thematic Sections:
+   - Structure the body of the report around logical themes derived from the research facets.
+   - Use clear descriptive subheadings (###) to organize multi-dimensional topics.
+   - Write in rich, flowing, multi-paragraph prose. Thoroughly unpack the evidence: explain mechanisms, causal chains, empirical statistics, and real-world implications.
+   - Incorporate Markdown comparison or summary tables whenever data involves comparative attributes, numerical benchmarks, chemical/nutritional breakdowns, timelines, or trade-offs.
+   - Contextualize Nuances & Limitations: If evidence on a specific sub-facet is sparse in public literature, analyze why (e.g., regulatory constraints, emerging technology phase, lack of longitudinal clinical trials) rather than simply stating data is absent.
+
+4. Strategic Conclusion & Outlook:
+   - Synthesize the overarching findings, trade-offs, and future trajectory of the topic.
+
+5. Rigorous Inline Citations:
+   - You MUST use inline citations (e.g., [1], [2]) whenever stating facts, metrics, or claims derived from the evidence.
+   - Every substantive assertion must be directly grounded in its citation source.
+
+6. References Section:
+   - Provide a clean, numbered list of references at the end matching the provided Source Mapping.
+
+Formatting & Tone:
+- Maintain an authoritative, objective, and analytically rigorous tone.
+- Avoid superficial 1-paragraph summaries. Provide depth, substance, and clarity.
 """
 
-def _build_evidence_block(store: KnowledgeStore) -> Tuple[str, Dict[str, int]]:
+def _build_evidence_block(store: KnowledgeStore) -> Tuple[str, Dict[str, Tuple[str, int]]]:
     """
     Builds the formatted evidence block for the prompt and generates a 
-    consistent mapping of URLs to citation IDs (e.g., [1]).
+    consistent mapping of URLs to citation IDs (e.g., [1]) and source titles.
     """
-    url_to_id = {}
+    url_to_info: Dict[str, Tuple[str, int]] = {}
     next_id = 1
     
     blocks = []
@@ -33,37 +56,38 @@ def _build_evidence_block(store: KnowledgeStore) -> Tuple[str, Dict[str, int]]:
         if not claims:
             continue
             
-        blocks.append(f"### Theme: {sq.text}")
+        blocks.append(f"### Research Facet: {sq.text}")
         for claim in claims:
             url = claim.source_url
-            if url not in url_to_id:
-                url_to_id[url] = next_id
+            title = claim.source_title or "Web Source"
+            if url not in url_to_info:
+                url_to_info[url] = (title, next_id)
                 next_id += 1
             
-            citation_id = url_to_id[url]
+            _, citation_id = url_to_info[url]
             blocks.append(f"- {claim.claim} [{citation_id}]")
         blocks.append("")
         
-    return "\n".join(blocks), url_to_id
+    return "\n".join(blocks), url_to_info
 
 async def synthesize_report(query: str, store: KnowledgeStore) -> str:
     """
     Takes the accumulated knowledge and generates a final markdown report.
     """
-    evidence_block, url_to_id = _build_evidence_block(store)
+    evidence_block, url_to_info = _build_evidence_block(store)
     
-    sorted_urls = sorted(url_to_id.items(), key=lambda x: x[1])
-    mapping_block = "\n".join([f"[{cit_id}] {url}" for url, cit_id in sorted_urls])
+    sorted_sources = sorted(url_to_info.items(), key=lambda x: x[1][1])
+    mapping_block = "\n".join([f"[{info[1]}] {info[0]} - {url}" for url, info in sorted_sources])
     
-    user_prompt = f"""Original Query: {query}
+    user_prompt = f"""Original Research Inquiry: {query}
 
-Evidence Collected:
+Accumulated Evidence by Theme:
 {evidence_block}
 
 Source Mapping:
 {mapping_block}
 
-Please generate the detailed research report now.
+Please generate the exhaustive, highly structured, and fully cited research report now.
 """
 
     for attempt in range(5):
@@ -81,3 +105,4 @@ Please generate the detailed research report now.
                 await asyncio.sleep(2 ** attempt)
     
     return f"# Error generating report\n\nFailed to synthesize report after multiple attempts."
+

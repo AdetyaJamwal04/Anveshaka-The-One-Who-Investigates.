@@ -79,9 +79,9 @@ async def generate_queries_node(state: ResearchState) -> dict:
             exclude_queries=excluded
         )
         
-    store.search_queries.extend(search_queries)
+    store.add_queries(search_queries)
     print(f"  -> Generated {len(search_queries)} queries.")
-    return {"search_queries": search_queries}
+    return {"search_queries": search_queries, "store": store}
 
 async def execute_searches_node(state: ResearchState) -> dict:
     print(f"\n[Node: Search] Hitting web search API for {len(state['search_queries'])} queries...")
@@ -94,7 +94,7 @@ async def extract_claims_node(state: ResearchState) -> dict:
     print(f"\n[Node: Extract] Parsing pages and extracting evidence claims...")
     evidence = await extract_evidence(state["sub_questions"], state["search_results"])
     store = state["store"]
-    store.evidence.extend(evidence)
+    store.add_evidence(evidence)
     print(f"  -> Extracted {len(evidence)} new claims.")
     return {"store": store}
 

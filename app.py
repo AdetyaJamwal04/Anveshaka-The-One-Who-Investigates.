@@ -9,6 +9,7 @@ import asyncio
 from datetime import datetime
 
 import streamlit as st
+from utils import slugify_topic
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -293,7 +294,8 @@ async def run_pipeline(query: str, stage_placeholder, stats_placeholder, report_
     # Save report
     os.makedirs("reports", exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"reports/research_report_{timestamp}.md"
+    topic_slug = slugify_topic(query, synthesis.entities if synthesis else [])
+    filename = f"reports/{topic_slug}_{timestamp}.md"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(report)
 
@@ -377,10 +379,11 @@ if run_clicked and query.strip():
         st.markdown("## 📄 Research Report")
         st.markdown(report, unsafe_allow_html=False)
         
+        topic_slug = slugify_topic(query.strip())
         st.download_button(
             label="📥 Download Report (Markdown)",
             data=report,
-            file_name=f"deepsearch_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md",
+            file_name=f"{topic_slug}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md",
             mime="text/markdown",
         )
 

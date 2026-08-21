@@ -24,6 +24,7 @@ from agents.search_executor import execute_and_clean_searches
 from agents.content_processor import extract_evidence
 from agents.reflection import reflect
 from agents.report_synthesizer import synthesize_report
+from utils import slugify_topic
 
 MAX_ROUNDS = 3
 
@@ -173,7 +174,10 @@ if __name__ == "__main__":
         if report:
             os.makedirs("reports", exist_ok=True)
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"reports/research_report_langgraph_{timestamp}.md"
+            synthesis = final_state.get("synthesis")
+            entities = synthesis.entities if synthesis else []
+            topic_slug = slugify_topic(test_query, entities)
+            filename = f"reports/{topic_slug}_{timestamp}.md"
             with open(filename, "w", encoding="utf-8") as f:
                 f.write(report)
             print(f"Report saved to: {filename}")

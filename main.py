@@ -12,6 +12,7 @@ from agents.content_processor import extract_evidence
 from agents.knowledge_store import KnowledgeStore
 from agents.reflection import reflect
 from agents.report_synthesizer import synthesize_report
+from utils import slugify_topic
 
 MAX_ROUNDS = 3
 
@@ -122,9 +123,10 @@ async def main():
     # Create reports directory if it doesn't exist
     os.makedirs("reports", exist_ok=True)
 
-    # Generate timestamped filename
+    # Generate topic-based timestamped filename
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"reports/research_report_{timestamp}.md"
+    topic_slug = slugify_topic(query, synth.entities if synth else [])
+    filename = f"reports/{topic_slug}_{timestamp}.md"
 
     with open(filename, "w", encoding="utf-8") as f:
         f.write(report_markdown)

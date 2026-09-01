@@ -216,11 +216,13 @@ Anveshaka/
 | LLM | Google Gemini (via `langchain-google-genai`) |
 | Agent Orchestration | LangGraph |
 | Web Search | Tavily API |
-| Frontend | Streamlit |
-| API Framework | FastAPI + Uvicorn |
-| Data Validation | Pydantic |
+| Production Frontend | Next.js 15, React 19, Tailwind CSS |
+| Prototype Frontend | Streamlit |
+| API Framework | FastAPI + Uvicorn (SSE streaming) |
+| Data Validation | Pydantic v2 |
 | Package Management | uv |
 
 ## License
 
-This project is for educational and personal use.
+Distributed under the [MIT License](LICENSE). See `LICENSE` for more information.
+Copyright (c) 2026 Adetya Jamwal.

@@ -41,7 +41,7 @@ export default function LandingPage() {
               <span className="relative z-10">Start Researching →</span>
             </Link>
             <a
-              href="https://github.com/AdetyaJamwal04/DeepSearch-Agentic-System"
+              href="https://github.com/AdetyaJamwal04/Anveshaka-The-One-Who-Investigates."
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-full border border-zinc-800 bg-zinc-900/50 px-8 py-3.5 text-base font-medium text-zinc-300 backdrop-blur-sm transition-all hover:border-zinc-700 hover:text-white hover:bg-zinc-800/50"

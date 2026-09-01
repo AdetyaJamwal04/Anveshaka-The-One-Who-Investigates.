@@ -42,7 +42,7 @@ export default function Navbar() {
             Research
           </Link>
           <a
-            href="https://github.com/AdetyaJamwal04/DeepSearch-Agentic-System"
+            href="https://github.com/AdetyaJamwal04/Anveshaka-The-One-Who-Investigates."
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-zinc-400 transition-colors hover:text-white"

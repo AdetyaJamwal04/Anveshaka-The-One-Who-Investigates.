@@ -1,5 +1,10 @@
 import sys
 import os
+
+backend_dir = os.path.dirname(os.path.abspath(__file__))
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
+
 import asyncio
 from datetime import datetime
 sys.stdout.reconfigure(encoding='utf-8')
@@ -121,17 +126,18 @@ async def main():
     report_markdown = await synthesize_report(query, store)
 
     # Create reports directory if it doesn't exist
-    os.makedirs("reports", exist_ok=True)
+    reports_dir = os.path.join(os.path.dirname(backend_dir), "reports")
+    os.makedirs(reports_dir, exist_ok=True)
 
     # Generate topic-based timestamped filename
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     topic_slug = slugify_topic(query, synth.entities if synth else [])
-    filename = f"reports/{topic_slug}_{timestamp}.md"
+    filename = os.path.join(reports_dir, f"{topic_slug}_{timestamp}.md")
 
     with open(filename, "w", encoding="utf-8") as f:
         f.write(report_markdown)
 
-    print(f"\n✅ DeepSearch complete! Final report saved to: {filename}")
+    print(f"\n✅ Anveshaka complete! Final report saved to: {filename}")
 
 
 if __name__ == "__main__":

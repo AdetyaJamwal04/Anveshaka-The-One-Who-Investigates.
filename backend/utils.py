@@ -1,5 +1,5 @@
 """
-Utility helper functions for DeepSearch Agentic System.
+Utility helper functions for Anveshaka.
 """
 
 import re

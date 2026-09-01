@@ -1,10 +1,15 @@
 """
-DeepSearch Streamlit Frontend
-Interactive UI for the DeepSearch agentic research pipeline.
+Anveshaka Streamlit Frontend
+Interactive UI for the Anveshaka agentic research pipeline.
 """
 
 import sys
 import os
+
+backend_dir = os.path.dirname(os.path.abspath(__file__))
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
+
 import asyncio
 from datetime import datetime
 
@@ -15,7 +20,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 # ── Page Config ──────────────────────────────────────────────────
 st.set_page_config(
-    page_title="DeepSearch — Agentic Research",
+    page_title="Anveshaka — Agentic Research",
     page_icon="🔍",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -176,7 +181,7 @@ def render_stage_tracker(current_stage: int, total_rounds: int = 1):
 
 
 async def run_pipeline(query: str, stage_placeholder, stats_placeholder, report_placeholder):
-    """Execute the full DeepSearch pipeline with live UI updates."""
+    """Execute the full Anveshaka pipeline with live UI updates."""
     from agents.query_synthesizer import synthesize_query
     from agents.subquestion_generator import generate_sub_questions
     from agents.search_query_generator import generate_search_queries
@@ -292,10 +297,11 @@ async def run_pipeline(query: str, stage_placeholder, stats_placeholder, report_
             st.markdown(f'<div class="stat-card"><h3>{unique_sources}</h3><p>Unique Sources</p></div>', unsafe_allow_html=True)
 
     # Save report
-    os.makedirs("reports", exist_ok=True)
+    reports_dir = os.path.join(os.path.dirname(backend_dir), "reports")
+    os.makedirs(reports_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     topic_slug = slugify_topic(query, synthesis.entities if synthesis else [])
-    filename = f"reports/{topic_slug}_{timestamp}.md"
+    filename = os.path.join(reports_dir, f"{topic_slug}_{timestamp}.md")
     with open(filename, "w", encoding="utf-8") as f:
         f.write(report)
 
@@ -304,7 +310,7 @@ async def run_pipeline(query: str, stage_placeholder, stats_placeholder, report_
 
 # ── Sidebar ──────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("## 🔍 DeepSearch")
+    st.markdown("## 🔍 Anveshaka")
     st.markdown("---")
     
     st.markdown("### 💡 Example Queries")
@@ -337,8 +343,8 @@ with st.sidebar:
 # ── Main Content ─────────────────────────────────────────────────
 st.markdown("""
 <div class="main-header">
-    <h1>🔍 DeepSearch</h1>
-    <p>Autonomous research agent — decomposes, searches, reflects, and reports.</p>
+    <h1>🔍 Anveshaka</h1>
+    <p>अन्वेषक — Autonomous research agent that investigates, analyzes, and reports.</p>
 </div>
 """, unsafe_allow_html=True)
 

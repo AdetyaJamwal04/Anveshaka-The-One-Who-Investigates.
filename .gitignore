@@ -10,3 +10,7 @@ test_stream.py
 .gemini/
 personal_run/
 search_local.py
+node_modules/
+.next/
+frontend/.next/
+frontend/node_modules/

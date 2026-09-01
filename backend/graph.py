@@ -8,6 +8,11 @@ search/extract/reflect loop → report generation.
 
 import sys
 import os
+
+backend_dir = os.path.dirname(os.path.abspath(__file__))
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
+
 from datetime import datetime
 from typing import TypedDict, List
 from langgraph.graph import StateGraph, END
@@ -125,7 +130,7 @@ async def report_node(state: ResearchState) -> dict:
     print(f"============================================================")
     print(f"[Node: Report] Generating detailed markdown report from {len(state['store'].evidence)} claims...")
     report = await synthesize_report(state["query"], state["store"])
-    print(f"\n✅ DeepSearch complete!")
+    print(f"\n✅ Anveshaka complete!")
     return {"report_markdown": report}
 
 # Graph Construction
@@ -172,12 +177,13 @@ if __name__ == "__main__":
         # Save report to disk only when running as CLI
         report = final_state.get("report_markdown", "") if final_state else ""
         if report:
-            os.makedirs("reports", exist_ok=True)
+            reports_dir = os.path.join(os.path.dirname(backend_dir), "reports")
+            os.makedirs(reports_dir, exist_ok=True)
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             synthesis = final_state.get("synthesis")
             entities = synthesis.entities if synthesis else []
             topic_slug = slugify_topic(test_query, entities)
-            filename = f"reports/{topic_slug}_{timestamp}.md"
+            filename = os.path.join(reports_dir, f"{topic_slug}_{timestamp}.md")
             with open(filename, "w", encoding="utf-8") as f:
                 f.write(report)
             print(f"Report saved to: {filename}")

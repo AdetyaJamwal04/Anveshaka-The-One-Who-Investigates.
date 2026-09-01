@@ -67,7 +67,17 @@ class ReportSummary(BaseModel):
     modified: str
 
 
-# ── Health Check ─────────────────────────────────────────────────
+# ── Health & Info Endpoints ─────────────────────────────────────
+@app.get("/")
+async def root():
+    return {
+        "name": "Anveshaka API",
+        "tagline": "अन्वेषक — Autonomous Research Agent",
+        "version": "1.0.0",
+        "status": "online",
+        "docs": "/docs",
+    }
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}

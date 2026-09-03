@@ -21,17 +21,14 @@ Your job is to rigorously determine whether the evidence collected is genuinely 
 
 Evaluation Criteria:
 - "sufficient":
-  1. High empirical depth: Evidence includes concrete mechanisms, quantitative figures (statistics, percentages, metrics, dates), or detailed causal explanations.
-  2. Multi-source triangulation: Evidence is drawn from multiple distinct sources.
-  3. Comprehensive facet coverage: All critical sub-facets of the sub-question (e.g. underlying mechanisms, real-world data, risks/limitations, edge cases) are directly supported.
-  4. Non-triviality: The evidence goes well beyond high-level definitions or surface-level summaries.
+  Mark "sufficient" if:
+  1. The sub-question has at least 3 substantive, concrete evidence claims from 2 or more distinct sources.
+  2. Key factual aspects, mechanisms, or findings are adequately represented to write an informative section.
 
 - "needs_more":
-  Mark "needs_more" if ANY of the following apply:
-  1. Low claim volume (< 4 substantive claims) or shallow source reliance.
-  2. Superficiality: Claims only state high-level conclusions without providing underlying evidence, mechanisms, numbers, or methodology.
-  3. Key Blindspots: Crucial dimensions (e.g., quantitative benchmarks, long-term impacts, comparative data, clinical trials, adverse effects) remain unaddressed.
-  4. Conflicting claims without adequate context to resolve them.
+  Mark "needs_more" ONLY if:
+  1. Severe factual void (fewer than 3 claims or only 1 single source).
+  2. All claims are purely superficial definitions with no practical or empirical substance.
 
 Guidance for "needs_more":
 - "gap": Clearly describe the exact missing evidence, data point, or mechanism.

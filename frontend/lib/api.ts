@@ -1,13 +1,14 @@
 /**
- * Anveshaka Frontend — API client.
- * Handles REST calls and SSE streaming to the FastAPI backend.
+ * Anveshaka Frontend - API client.
+ * Handles REST calls and SSE streaming to the FastAPI backend
+ * via Next.js API route proxies (avoids cross-origin / firewall issues).
  */
 
 import type { SSEEvent, ReportSummary, ReportDetail } from "./types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE = "/api";
 
-// ── REST Endpoints ─────────────────────────────────────────────
+// ── REST Endpoints ──────────────────────────────────────────
 
 export async function healthCheck(): Promise<{ status: string }> {
   const res = await fetch(`${API_BASE}/health`);
@@ -27,7 +28,7 @@ export async function getReport(filename: string): Promise<ReportDetail> {
   return res.json();
 }
 
-// ── SSE Streaming ──────────────────────────────────────────────
+// ── SSE Streaming ───────────────────────────────────────────
 
 export function streamResearch(
   query: string,
@@ -37,12 +38,14 @@ export function streamResearch(
 ): () => void {
   const url = `${API_BASE}/research/stream?query=${encodeURIComponent(query)}`;
   const eventSource = new EventSource(url);
+  let isDone = false;
 
   eventSource.onmessage = (event) => {
     try {
       const data: SSEEvent = JSON.parse(event.data);
 
       if (data.error) {
+        isDone = true;
         onError(data.error);
         eventSource.close();
         return;
@@ -51,6 +54,7 @@ export function streamResearch(
       onEvent(data);
 
       if (data.node === "END") {
+        isDone = true;
         onComplete();
         eventSource.close();
       }
@@ -59,13 +63,20 @@ export function streamResearch(
     }
   };
 
-  eventSource.onerror = () => {
-    onError("Connection to research server lost. Please try again.");
+  eventSource.onerror = (e) => {
+    // Suppress error if already completed or cleanly closed
+    if (isDone || eventSource.readyState === EventSource.CLOSED) {
+      return;
+    }
+    console.error("EventSource error:", e);
+    isDone = true;
+    onError("Connection to research server lost. Please check that the server is running and try again.");
     eventSource.close();
   };
 
   // Return cleanup function
   return () => {
+    isDone = true;
     eventSource.close();
   };
 }

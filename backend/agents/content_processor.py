@@ -139,6 +139,8 @@ async def extract_evidence(
         sq_results = _dedupe_by_url(sq_results)
         if not sq_results:
             return []
+        # Keep top 6 highest-quality results per sub-question to optimize latency
+        sq_results = sq_results[:6]
 
         raw_evidence, source_map = await _call_llm_for_evidence_extraction(sq.text, sq_results)
 

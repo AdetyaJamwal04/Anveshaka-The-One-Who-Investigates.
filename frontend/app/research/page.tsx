@@ -16,7 +16,7 @@ import type {
   ResearchStats,
   SSEEvent,
 } from "@/lib/types";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Check, Copy, Download } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -37,6 +37,101 @@ const STAGE_ORDER: PipelineStage[] = [
   "Reflect",
   "Report",
 ];
+
+/** Cross-device clipboard copy with HTTPS fallback */
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(async () => {
+    try {
+      // Modern Clipboard API (requires HTTPS on non-localhost)
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback for HTTP / older browsers / mobile
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "");
+        textarea.style.cssText = "position:fixed;left:-9999px;top:-9999px;opacity:0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        // iOS Safari requires setSelectionRange
+        textarea.setSelectionRange(0, text.length);
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Last resort: prompt user to copy manually
+      window.prompt("Copy this report:", text.substring(0, 2000));
+    }
+  }, [text]);
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-1.5 text-xs text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors"
+    >
+      {copied ? (
+        <>
+          <Check className="h-3 w-3 text-emerald-400" />
+          <span className="text-emerald-400">Copied!</span>
+        </>
+      ) : (
+        <>
+          <Copy className="h-3 w-3" />
+          Copy Report
+        </>
+      )}
+    </button>
+  );
+}
+
+/** Cross-device download with iOS Safari fallback */
+function DownloadButton({ report }: { report: string }) {
+  const handleDownload = useCallback(() => {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+    if (isIOS || isSafari) {
+      // iOS Safari blocks blob downloads; open in a new tab instead
+      const win = window.open("", "_blank");
+      if (win) {
+        win.document.write(
+          "<html><head><title>anveshaka-report.md</title>" +
+          "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
+          "</head><body><pre style=\"white-space:pre-wrap;word-wrap:break-word;font-family:monospace;padding:1rem;\">" +
+          report.replace(/</g, "&lt;").replace(/>/g, "&gt;") +
+          "</pre></body></html>"
+        );
+        win.document.close();
+      }
+    } else {
+      // Standard download for Chrome, Firefox, Edge, Android
+      const blob = new Blob([report], { type: "text/markdown;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "anveshaka-report.md";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      // Delay revoke to allow download to start
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+  }, [report]);
+
+  return (
+    <button
+      onClick={handleDownload}
+      className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-1.5 text-xs text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors"
+    >
+      <Download className="h-3 w-3" />
+      Download
+    </button>
+  );
+}
 
 export default function ResearchPage() {
   const router = useRouter();
@@ -224,18 +319,30 @@ export default function ResearchPage() {
           <div className="mb-8">
             <div className="relative group">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-600 to-blue-500 rounded-xl opacity-0 group-focus-within:opacity-20 blur transition-opacity duration-300" />
-              <div className="relative flex items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-950 px-5 py-4 focus-within:border-violet-500/50 transition-colors">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  startResearch();
+                }}
+                className="relative flex items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-950 px-5 py-4 focus-within:border-violet-500/50 transition-colors"
+              >
                 <input
                   type="text"
+                  enterKeyHint="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && startResearch()}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      startResearch();
+                    }
+                  }}
                   placeholder="What would you like to research?"
                   disabled={isResearching}
                   className="flex-1 bg-transparent text-base text-white placeholder:text-zinc-500 outline-none disabled:opacity-50"
                 />
                 <button
-                  onClick={startResearch}
+                  type="submit"
                   disabled={!query.trim() || isResearching}
                   className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-violet-600 to-blue-500 text-white shadow-lg shadow-violet-500/20 transition-all hover:shadow-violet-500/40 hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
                 >
@@ -245,7 +352,7 @@ export default function ResearchPage() {
                     <Send className="h-4 w-4" />
                   )}
                 </button>
-              </div>
+              </form>
             </div>
           </div>
 
@@ -304,26 +411,8 @@ export default function ResearchPage() {
                   </span>
                 </div>
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => navigator.clipboard.writeText(report)}
-                    className="rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-1.5 text-xs text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors"
-                  >
-                    📋 Copy Report
-                  </button>
-                  <button
-                    onClick={() => {
-                      const blob = new Blob([report], { type: "text/markdown" });
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement("a");
-                      a.href = url;
-                      a.download = "anveshaka-report.md";
-                      a.click();
-                      URL.revokeObjectURL(url);
-                    }}
-                    className="rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-1.5 text-xs text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors"
-                  >
-                    📥 Download
-                  </button>
+                  <CopyButton text={report} />
+                  <DownloadButton report={report} />
                 </div>
               </div>
               <div className="report-content max-w-none">

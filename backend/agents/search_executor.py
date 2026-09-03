@@ -1,11 +1,12 @@
 import re
 import asyncio
+import os
 from typing import List
 from schemas.schema import SearchQuery, SearchResult
 from models.web_client import client as tavily_client
 
-TAVILY_SEMAPHORE = asyncio.Semaphore(5)
-
+TAVILY_SEMAPHORE = asyncio.Semaphore(10)
+DEFAULT_SEARCH_DEPTH = os.getenv("TAVILY_SEARCH_DEPTH", "basic")
 
 _MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\([^)]*\)")
 
@@ -22,22 +23,7 @@ def _is_low_quality_content(
     min_alpha_ratio: float = 0.6,
 ) -> bool:
     """
-    Flags content that's unusable for downstream synthesis. Catches three
-    distinct failure modes seen in real Tavily output:
-
-      1. Too short to carry information.
-      2. Mostly markdown link/image syntax -- aggregator sign-in prompts,
-         footer recirculation widgets, image-fetch URL walls (Medium,
-         Substack, etc.). Measured as the FRACTION of total characters
-         consumed by markdown link/image patterns, not how often a link
-         marker appears -- a handful of very long URLs can dominate content
-         length without producing many marker occurrences.
-      3. Garbled non-prose content from failed PDF text extraction -- raw
-         PDF internal structure (XMP metadata, font tables, binary stream
-         bytes) instead of the actual article text. Caught two ways: a
-         marker check for PDF-internal tokens, and an alphabetic-character
-         ratio check as a general-purpose backstop for other binary-
-         extraction failures that don't contain these exact markers.
+    Flags content that's unusable for downstream synthesis.
     """
     if not content or len(content) < min_length:
         return True
@@ -58,20 +44,21 @@ def _is_low_quality_content(
     return False
 
 
-async def _execute_single_query(query_string: str, max_results: int = 5, search_depth: str = "advanced") -> dict:
+async def _execute_single_query(query_string: str, max_results: int = 5, search_depth: str = None) -> dict:
     """
     Calls Tavily for a single query string and returns the raw response dict.
-    Uses 'advanced' search depth by default to extract deep, informative page text.
+    Defaults to fast 'basic' search depth for 10x retrieval speed.
     """
+    depth = search_depth or DEFAULT_SEARCH_DEPTH
     async with TAVILY_SEMAPHORE:
         try:
             return await tavily_client.search(
                 query=query_string,
-                search_depth=search_depth,
+                search_depth=depth,
                 max_results=max_results,
             )
         except Exception as e:
-            print(f"[search_executor] Advanced search error for '{query_string}' ({e}), falling back to basic...")
+            print(f"[search_executor] Search error for '{query_string}' ({e}), retrying basic...")
             return await tavily_client.search(
                 query=query_string,
                 search_depth="basic",
@@ -129,10 +116,10 @@ async def execute_and_clean_searches(
         sq.status = "executed" if survived_count > 0 else "failed"
         return local_results
 
-    # Run all searches concurrently
-    all_local_results = await asyncio.gather(*(fetch_and_process(sq) for sq in search_queries))
-    
-    for r in all_local_results:
-        results.extend(r)
+    tasks = [fetch_and_process(sq) for sq in search_queries]
+    batch_results = await asyncio.gather(*tasks)
+
+    for sublist in batch_results:
+        results.extend(sublist)
 
     return results

@@ -31,7 +31,7 @@ from agents.reflection import reflect
 from agents.report_synthesizer import synthesize_report
 from utils import slugify_topic
 
-MAX_ROUNDS = 3
+MAX_ROUNDS = int(os.getenv("MAX_ROUNDS", "2"))
 
 class ResearchState(TypedDict):
     query: str

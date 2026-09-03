@@ -33,7 +33,7 @@ Rules:
 - Order sub-questions by research priority: foundational/prerequisite facets
   first, narrower or derived facets later.
 - Produce as many sub-questions as the objective genuinely requires -
-  typically 3 to 6. Do not pad the list to hit a target count, and do not
+  typically 2 to 4. Do not pad the list to hit a target count, and do not
   force decomposition where a facet doesn't naturally exist.
 - Do not answer, explain, or add information. Only generate questions.
 - Do NOT generate a sub-question that asks how the other facets relate to,

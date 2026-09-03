@@ -73,6 +73,28 @@ def _build_evidence_block(store: KnowledgeStore) -> Tuple[str, Dict[str, Tuple[s
         
     return "\n".join(blocks), url_to_info
 
+
+def _extract_text_content(content) -> str:
+    """
+    Ensures LLM output is always returned as a clean markdown string,
+    handling LangChain Google GenAI which returns content as a list of dicts/parts.
+    """
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for item in content:
+            if isinstance(item, dict) and "text" in item:
+                parts.append(item["text"])
+            elif hasattr(item, "text"):
+                parts.append(getattr(item, "text"))
+            elif isinstance(item, str):
+                parts.append(item)
+            else:
+                parts.append(str(item))
+        return "".join(parts)
+    return str(content)
+
 async def synthesize_report(query: str, store: KnowledgeStore) -> str:
     """
     Takes the accumulated knowledge and generates a final markdown report.
@@ -101,7 +123,7 @@ Please generate the exhaustive, highly structured, and fully cited research repo
                     ("user", user_prompt),
                 ]
             )
-            return response.content
+            return _extract_text_content(response.content)
         except Exception as e:
             print(f"[report_synthesizer] LLM call failed (attempt {attempt+1}/5): {e}")
             if attempt < 4:

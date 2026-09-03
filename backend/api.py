@@ -184,11 +184,20 @@ async def research_event_generator(query: str):
 
                     # Final report
                     if "report_markdown" in state_update:
+                        raw_rep = state_update["report_markdown"]
+                        if isinstance(raw_rep, list):
+                            rep_str = "".join(
+                                part.get("text", str(part)) if isinstance(part, dict) else str(part)
+                                for part in raw_rep
+                            )
+                        else:
+                            rep_str = str(raw_rep)
+
                         final_payload = {
                             "node": "END",
                             "stage": "Complete",
                             "status": "completed",
-                            "report": state_update["report_markdown"],
+                            "report": rep_str,
                         }
                         yield f"data: {json.dumps(payload)}\n\n"
                         yield f"data: {json.dumps(final_payload)}\n\n"

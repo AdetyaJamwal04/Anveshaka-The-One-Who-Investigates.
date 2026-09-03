@@ -17,6 +17,7 @@ import type {
   SSEEvent,
 } from "@/lib/types";
 import { Send, Loader2, Check, Copy, Download } from "lucide-react";
+import ExportPdfButton from "@/components/ExportPdfButton";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -186,7 +187,20 @@ export default function ResearchPage() {
 
       // Final report
       if (event.node === "END" && event.report) {
-        setReport(event.report);
+        let reportText = "";
+        if (typeof event.report === "string") {
+          reportText = event.report;
+        } else if (Array.isArray(event.report)) {
+          reportText = (event.report as any[])
+            .map((p) => (typeof p === "string" ? p : p?.text || JSON.stringify(p)))
+            .join("");
+        } else if (typeof event.report === "object" && (event.report as any)?.text) {
+          reportText = String((event.report as any).text);
+        } else {
+          reportText = String(event.report);
+        }
+
+        setReport(reportText);
         setStages((prev) => prev.map((s) => ({ ...s, status: "completed" })));
         addActivity("Research complete! Report generated.", "success");
         return;
@@ -413,11 +427,19 @@ export default function ResearchPage() {
                 <div className="flex gap-2">
                   <CopyButton text={report} />
                   <DownloadButton report={report} />
+                  <ExportPdfButton title={query || "Anveshaka Research Report"} />
                 </div>
+              </div>
+              <div className="hidden print:block print-only-header mb-6">
+                <div className="flex justify-between items-center text-xs text-zinc-500 uppercase tracking-widest mb-1">
+                  <span className="font-bold text-zinc-900">Anveshaka · Autonomous Research Intelligence</span>
+                  <span>{new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
+                </div>
+                <div className="text-xs text-zinc-600">Cited Exhaustive Research Dossier</div>
               </div>
               <div className="report-content max-w-none">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {report}
+                  {typeof report === "string" ? report : String(report || "")}
                 </ReactMarkdown>
               </div>
             </div>

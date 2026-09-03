@@ -8,6 +8,7 @@ import type { ReportDetail } from "@/lib/types";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FileText, Copy, Download, Share2, ChevronRight } from "lucide-react";
+import ExportPdfButton from "@/components/ExportPdfButton";
 import Link from "next/link";
 
 interface HeadingEntry {
@@ -180,6 +181,10 @@ export default function ReportViewerPage() {
                   <Download className="h-3.5 w-3.5" />
                   Download
                 </button>
+                <ExportPdfButton
+                  title={report.filename.replace(".md", "").replace(/_/g, " ")}
+                  className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors cursor-pointer"
+                />
                 <button
                   onClick={() => navigator.clipboard.writeText(window.location.href)}
                   className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors"
@@ -187,6 +192,15 @@ export default function ReportViewerPage() {
                   <Share2 className="h-3.5 w-3.5" />
                   Share
                 </button>
+              </div>
+
+              {/* Printable Header */}
+              <div className="hidden print:block print-only-header mb-6">
+                <div className="flex justify-between items-center text-xs text-zinc-500 uppercase tracking-widest mb-1">
+                  <span className="font-bold text-zinc-900">Anveshaka · Autonomous Research Intelligence</span>
+                  <span>{new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
+                </div>
+                <div className="text-xs text-zinc-600">Cited Exhaustive Research Dossier</div>
               </div>
 
               {/* Rendered markdown */}

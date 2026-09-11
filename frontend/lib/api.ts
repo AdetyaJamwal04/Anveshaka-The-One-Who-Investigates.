@@ -17,13 +17,13 @@ export async function healthCheck(): Promise<{ status: string }> {
 }
 
 export async function listReports(): Promise<ReportSummary[]> {
-  const res = await fetch(`${API_BASE}/reports`);
+  const res = await fetch(`${API_BASE}/reports`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch reports");
   return res.json();
 }
 
 export async function getReport(filename: string): Promise<ReportDetail> {
-  const res = await fetch(`${API_BASE}/reports/${encodeURIComponent(filename)}`);
+  const res = await fetch(`${API_BASE}/reports/${encodeURIComponent(filename)}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Report not found");
   return res.json();
 }

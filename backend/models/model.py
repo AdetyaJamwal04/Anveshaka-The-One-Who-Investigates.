@@ -17,7 +17,7 @@ class ThrottledChat(ChatGoogleGenerativeAI):
 
 chat = ThrottledChat(
     model=model_name,
-    api_key=GEMINI_API_KEY,
+    api_key=GEMINI_API_KEY or "dummy_key_for_test_init",
     max_retries=10,
     timeout=120,
 )

@@ -75,25 +75,13 @@ def _build_evidence_block(store: KnowledgeStore) -> Tuple[str, Dict[str, Tuple[s
 
 
 def _extract_text_content(content) -> str:
-    """
-    Ensures LLM output is always returned as a clean markdown string,
-    handling LangChain Google GenAI which returns content as a list of dicts/parts.
-    """
-    if isinstance(content, str):
-        return content
+    """Ensures LLM output is always returned as a clean markdown string."""
     if isinstance(content, list):
-        parts = []
-        for item in content:
-            if isinstance(item, dict) and "text" in item:
-                parts.append(item["text"])
-            elif hasattr(item, "text"):
-                parts.append(getattr(item, "text"))
-            elif isinstance(item, str):
-                parts.append(item)
-            else:
-                parts.append(str(item))
-        return "".join(parts)
-    return str(content)
+        return "".join(
+            p.get("text", str(p)) if isinstance(p, dict) else getattr(p, "text", str(p))
+            for p in content
+        )
+    return content if isinstance(content, str) else str(content)
 
 async def synthesize_report(query: str, store: KnowledgeStore) -> str:
     """

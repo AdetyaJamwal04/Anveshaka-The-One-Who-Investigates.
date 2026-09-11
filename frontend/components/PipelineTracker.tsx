@@ -1,6 +1,7 @@
 "use client";
 
 import type { StageState } from "@/lib/types";
+import { Check, Loader2 } from "lucide-react";
 
 interface PipelineTrackerProps {
   stages: StageState[];
@@ -8,69 +9,69 @@ interface PipelineTrackerProps {
 
 export default function PipelineTracker({ stages }: PipelineTrackerProps) {
   return (
-    <div className="w-full py-6">
-      <div className="flex items-center justify-between">
-        {stages.map((stage, index) => (
-          <div key={stage.name} className="flex items-center flex-1 last:flex-none">
-            {/* Stage circle + label */}
-            <div className="flex flex-col items-center gap-2">
-              <div
-                className={`
-                  relative flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-500
-                  ${
-                    stage.status === "completed"
-                      ? "border-emerald-500 bg-emerald-500/10"
-                      : stage.status === "active"
-                      ? "border-violet-500 bg-violet-500/10 shadow-lg shadow-violet-500/30"
-                      : "border-zinc-700 bg-zinc-900"
-                  }
-                `}
-              >
-                {stage.status === "completed" ? (
-                  <svg className="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                ) : stage.status === "active" ? (
-                  <>
-                    <div className="absolute inset-0 animate-ping rounded-full border-2 border-violet-500 opacity-30" />
-                    <div className="h-3 w-3 rounded-full bg-violet-500 animate-pulse" />
-                  </>
-                ) : (
-                  <div className="h-2.5 w-2.5 rounded-full bg-zinc-600" />
-                )}
-              </div>
+    <div className="w-full py-4 px-1" role="region" aria-label="Investigation Pipeline Execution">
+      {/* Step progression row */}
+      <div className="flex items-center justify-between gap-1 sm:gap-2">
+        {stages.map((stage, index) => {
+          const isCompleted = stage.status === "completed";
+          const isActive = stage.status === "active";
 
-              <span
-                className={`text-xs font-medium whitespace-nowrap transition-colors duration-300 ${
-                  stage.status === "completed"
-                    ? "text-emerald-400"
-                    : stage.status === "active"
-                    ? "text-violet-400"
-                    : "text-zinc-500"
-                }`}
-              >
-                {stage.name}
-              </span>
-            </div>
-
-            {/* Connector line */}
-            {index < stages.length - 1 && (
-              <div className="flex-1 mx-3 mt-[-1.5rem]">
-                <div className="h-0.5 w-full rounded-full bg-zinc-800 overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-700 ease-out ${
-                      stage.status === "completed"
-                        ? "w-full bg-gradient-to-r from-emerald-500 to-emerald-400"
-                        : stage.status === "active"
-                        ? "w-1/2 bg-gradient-to-r from-violet-500 to-violet-400 animate-pulse"
-                        : "w-0"
-                    }`}
-                  />
+          return (
+            <div key={stage.name} className="flex items-center flex-1 last:flex-none">
+              {/* Stage Node */}
+              <div className="flex flex-col items-center gap-1.5 sm:gap-2 min-w-[54px] sm:min-w-[70px]">
+                <div
+                  className={`relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg border text-xs font-mono transition-all duration-300 ${
+                    isCompleted
+                      ? "border-success/60 bg-success-subtle text-success font-semibold"
+                      : isActive
+                      ? "border-accent bg-accent-subtle text-accent font-semibold ring-2 ring-accent/20"
+                      : "border-border bg-surface text-text-muted"
+                  }`}
+                  aria-label={`${stage.name} stage: ${stage.status}`}
+                >
+                  {isCompleted ? (
+                    <Check className="h-4 w-4 stroke-[2.5]" />
+                  ) : isActive ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-accent" />
+                  ) : (
+                    <span>0{index + 1}</span>
+                  )}
                 </div>
+
+                {/* Stage Title */}
+                <span
+                  className={`text-[11px] sm:text-xs tracking-tight transition-colors duration-200 text-center ${
+                    isCompleted
+                      ? "text-text-primary font-medium"
+                      : isActive
+                      ? "text-accent font-semibold"
+                      : "text-text-muted"
+                  }`}
+                >
+                  {stage.name}
+                </span>
               </div>
-            )}
-          </div>
-        ))}
+
+              {/* Connecting Rule */}
+              {index < stages.length - 1 && (
+                <div className="flex-1 mx-1.5 sm:mx-3 -mt-5">
+                  <div className="h-0.5 w-full bg-border rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-500 ease-out ${
+                        isCompleted
+                          ? "w-full bg-success"
+                          : isActive
+                          ? "w-1/2 bg-accent animate-pulse"
+                          : "w-0"
+                      }`}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

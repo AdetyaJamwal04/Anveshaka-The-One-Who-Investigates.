@@ -2,6 +2,7 @@
 
 import type { ActivityEntry } from "@/lib/types";
 import { useEffect, useRef } from "react";
+import { Check, Loader2, Info, AlertTriangle, Terminal } from "lucide-react";
 
 interface LiveActivityProps {
   entries: ActivityEntry[];
@@ -10,78 +11,103 @@ interface LiveActivityProps {
 export default function LiveActivity({ entries }: LiveActivityProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to latest entry
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [entries]);
 
-  const getIcon = (type: ActivityEntry["type"]) => {
+  const getStatusBadge = (type: ActivityEntry["type"]) => {
     switch (type) {
       case "success":
         return (
-          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/10">
-            <svg className="h-3 w-3 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-success-subtle text-success border border-success/30">
+            <Check className="h-3 w-3 stroke-[2.5]" />
           </div>
         );
       case "progress":
         return (
-          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-violet-500/10">
-            <div className="h-2 w-2 rounded-full bg-violet-500 animate-pulse" />
-          </div>
-        );
-      case "info":
-        return (
-          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
-            <div className="h-2 w-2 rounded-full bg-blue-400" />
+          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-accent-subtle text-accent border border-accent/30">
+            <Loader2 className="h-3 w-3 animate-spin" />
           </div>
         );
       case "error":
         return (
-          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-500/10">
-            <svg className="h-3 w-3 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-error-subtle text-error border border-error/30">
+            <AlertTriangle className="h-3 w-3 stroke-[2.5]" />
+          </div>
+        );
+      case "info":
+      default:
+        return (
+          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-surface text-text-muted border border-border">
+            <Info className="h-3 w-3" />
           </div>
         );
     }
   };
 
+  const formatTime = (d: Date) => {
+    return new Date(d).toLocaleTimeString("en-US", {
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  };
+
   return (
-    <div className="flex flex-col gap-2">
-      <h3 className="text-sm font-semibold text-zinc-300 uppercase tracking-wider">
-        Live Activity
-      </h3>
+    <div className="flex flex-col h-full rounded-xl border border-border bg-surface shadow-xs overflow-hidden">
+      {/* Panel Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface-secondary/40">
+        <div className="flex items-center gap-2">
+          <Terminal className="h-4 w-4 text-text-muted" />
+          <h3 className="text-xs font-mono uppercase tracking-wider text-text-primary font-semibold">
+            Execution Log
+          </h3>
+        </div>
+        <span className="text-[11px] font-mono text-text-muted">
+          {entries.length} {entries.length === 1 ? "event" : "events"}
+        </span>
+      </div>
+
+      {/* Log Feed */}
       <div
         ref={scrollRef}
-        className="flex flex-col gap-1.5 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin"
+        className="flex-1 p-3 overflow-y-auto max-h-[380px] min-h-[220px] space-y-2 font-sans"
       >
         {entries.length === 0 ? (
-          <div className="flex items-center justify-center py-12 text-sm text-zinc-600">
-            Waiting for research to begin...
+          <div className="h-full flex flex-col items-center justify-center py-12 text-center text-text-muted">
+            <div className="h-8 w-8 rounded-full border border-border bg-surface flex items-center justify-center mb-2">
+              <Terminal className="h-4 w-4 opacity-40" />
+            </div>
+            <p className="text-xs font-mono">Telemetry idle. Awaiting research query.</p>
           </div>
         ) : (
-          entries.map((entry) => (
+          entries.map((entry, idx) => (
             <div
-              key={entry.id}
-              className="flex items-start gap-3 rounded-lg border border-zinc-800/50 bg-zinc-900/50 px-4 py-3 transition-all duration-300 animate-in fade-in slide-in-from-top-1"
+              key={entry.id || idx}
+              className="flex items-start gap-2.5 rounded-lg border border-border-subtle bg-surface-secondary p-2.5 text-xs transition-colors"
             >
-              {getIcon(entry.type)}
-              <span
-                className={`text-sm leading-relaxed ${
-                  entry.type === "progress"
-                    ? "text-violet-300"
-                    : entry.type === "error"
-                    ? "text-red-300"
-                    : "text-zinc-300"
-                }`}
-              >
-                {entry.message}
-              </span>
+              {getStatusBadge(entry.type)}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline justify-between gap-2 mb-0.5">
+                  <span className="font-mono text-[10px] text-text-muted">
+                    {formatTime(entry.timestamp)}
+                  </span>
+                </div>
+                <p
+                  className={`leading-relaxed break-words ${
+                    entry.type === "error"
+                      ? "text-error font-medium"
+                      : entry.type === "progress"
+                      ? "text-accent font-medium"
+                      : "text-text-primary"
+                  }`}
+                >
+                  {entry.message}
+                </p>
+              </div>
             </div>
           ))
         )}

@@ -87,19 +87,8 @@ async def reflect(store: KnowledgeStore) -> List[SubQuestionVerdict]:
             print(f"[reflection] LLM call failed (attempt {attempt+1}/5): {e}")
             if attempt < 4:
                 await asyncio.sleep(2 ** attempt)
-            else:
-                # On failure, mark everything as sufficient to avoid infinite loops
-                return [
-                    SubQuestionVerdict(
-                        sub_question_id=sq.id,
-                        verdict="sufficient",
-                        gap="",
-                        suggested_angles=[],
-                    )
-                    for sq in store.sub_questions
-                ]
     
-    # Fallback
+    # Fallback on failure: mark everything as sufficient to avoid infinite loops
     return [
         SubQuestionVerdict(
             sub_question_id=sq.id,

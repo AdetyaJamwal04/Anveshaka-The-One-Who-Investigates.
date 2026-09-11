@@ -1,258 +1,343 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import { Search, FileText, RefreshCw, Shield, Zap, BarChart3 } from "lucide-react";
+import { listReports } from "@/lib/api";
+import type { ReportSummary } from "@/lib/types";
+import {
+  Compass,
+  ArrowRight,
+  Search,
+  Cpu,
+  RefreshCw,
+  FileCheck2,
+  ShieldCheck,
+  ArrowUpRight,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
+  const router = useRouter();
+  const [inquiry, setInquiry] = useState("");
+  const [recentReports, setRecentReports] = useState<ReportSummary[]>([]);
+
+  useEffect(() => {
+    async function loadRecent() {
+      try {
+        const data = await listReports();
+        setRecentReports((data || []).slice(0, 3));
+      } catch {
+        // Silently handle if offline
+      }
+    }
+    loadRecent();
+  }, []);
+
+  const handleLaunch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (inquiry.trim()) {
+      router.push(`/research?q=${encodeURIComponent(inquiry.trim())}`);
+    } else {
+      router.push("/research");
+    }
+  };
+
+  const PIPELINE_NODES = [
+    {
+      id: "01",
+      name: "Query Synthesizer",
+      stage: "Synthesize",
+      role: "Classifies research intent (comparative, causal, trend) and architecture.",
+    },
+    {
+      id: "02",
+      name: "Sub-question Generator",
+      stage: "Decompose",
+      role: "Decomposes complex objectives into independent investigative facets.",
+    },
+    {
+      id: "03",
+      name: "Search Query Generator",
+      stage: "Formulate",
+      role: "Engineers diverse, high-precision technical queries per sub-question.",
+    },
+    {
+      id: "04",
+      name: "Search Executor",
+      stage: "Execute",
+      role: "Runs concurrent web search via Tavily and filters out low-signal artifacts.",
+    },
+    {
+      id: "05",
+      name: "Content Processor",
+      stage: "Extract",
+      role: "Distills dense, factual evidence claims attributed strictly to source URLs.",
+    },
+    {
+      id: "06",
+      name: "Knowledge Store",
+      stage: "Accumulate",
+      role: "Maintains structured in-memory evidence state across multiple rounds.",
+    },
+    {
+      id: "07",
+      name: "Reflection Auditor",
+      stage: "Reflect",
+      role: "Assesses factual voids, evaluates source diversity, and pivots queries.",
+    },
+    {
+      id: "08",
+      name: "Report Synthesizer",
+      stage: "Synthesize",
+      role: "Synthesizes multi-paragraph analysis with exhaustive inline citations.",
+    },
+  ];
+
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Navbar />
 
-      {/* ── Hero Section ──────────────────────────────────── */}
-      <section className="aurora-bg grid-pattern relative flex flex-col items-center justify-center px-6 pt-32 pb-20 md:pt-44 md:pb-32">
-        <div className="relative z-10 flex flex-col items-center text-center max-w-4xl mx-auto">
-          {/* Badge */}
-          <div className="animate-fade-in mb-6 inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/60 px-4 py-1.5 text-sm text-zinc-400 backdrop-blur-sm">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Powered by LangGraph + Gemini
+      {/* ── Editorial Hero ───────────────────────────────── */}
+      <section className="px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-16 max-w-5xl mx-auto w-full text-center">
+        {/* Sanskrit Designation Badge */}
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-surface text-xs font-mono text-text-secondary mb-6 shadow-xs">
+          <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+          <span>अन्वेषक · Autonomous Research Intelligence</span>
+        </div>
+
+        <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-text-primary leading-[1.15] max-w-4xl mx-auto">
+          Autonomous Investigation.
+          <br />
+          <span className="text-accent">Verified Evidence.</span> Cited Dossiers.
+        </h1>
+
+        <p className="mt-6 text-base sm:text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed">
+          Anveshaka operates an iterative multi-round LangGraph state machine that decomposes inquiries, verifies empirical evidence across sources, audits factual voids, and synthesizes exhaustive, cited research reports.
+        </p>
+
+        {/* Direct Investigation Launch Bar */}
+        <div className="mt-10 max-w-2xl mx-auto">
+          <form
+            onSubmit={handleLaunch}
+            className="flex items-center gap-2 rounded-xl border border-border bg-surface p-2 shadow-xs focus-within:border-accent focus-within:ring-1 focus-within:ring-accent transition-all"
+          >
+            <div className="pl-3 text-text-muted">
+              <Search className="h-4 w-4" />
+            </div>
+            <input
+              type="text"
+              value={inquiry}
+              onChange={(e) => setInquiry(e.target.value)}
+              placeholder="Enter a research topic, comparative matrix, or empirical question..."
+              className="flex-1 bg-transparent px-2 py-2 text-sm text-text-primary placeholder:text-text-muted outline-none"
+            />
+            <button
+              type="submit"
+              className="inline-flex items-center gap-1 px-4 py-2.5 rounded-lg bg-accent text-white text-xs font-semibold hover:bg-accent-hover transition-colors shrink-0 shadow-xs"
+            >
+              <span>Investigate</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </form>
+
+          {/* Quick topics */}
+          <div className="mt-3 flex items-center justify-center gap-2 flex-wrap text-xs text-text-muted">
+            <span className="font-mono text-[11px]">Inquiries:</span>
+            {[
+              "GLP-1 vs SGLT2 inhibitors clinical efficacy",
+              "Algorithmic trading and market liquidity risks",
+              "Sodium-ion vs LFP batteries for grid storage",
+            ].map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => {
+                  setInquiry(t);
+                  router.push(`/research?q=${encodeURIComponent(t)}`);
+                }}
+                className="hover:text-text-primary hover:underline underline-offset-4 transition-colors"
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Architecture Pipeline Section ────────────────── */}
+      <section id="pipeline" className="px-4 sm:px-6 lg:px-8 py-16 border-t border-border bg-surface/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <div className="flex items-center justify-center gap-1.5 text-xs font-mono uppercase tracking-wider text-accent mb-2">
+              <Cpu className="h-3.5 w-3.5" />
+              <span>State Graph Architecture</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
+              The 8-Stage Research Lifecycle
+            </h2>
+            <p className="mt-2 text-sm text-text-secondary">
+              Rather than single-pass summarization, Anveshaka executes an autonomous loop with verification checkpoints and reflection audits.
+            </p>
           </div>
 
-          {/* Headline */}
-          <h1 className="animate-fade-in text-5xl md:text-7xl font-bold tracking-tight text-white leading-[1.1]">
-            Research at the
-            <br />
-            <span className="bg-gradient-to-r from-violet-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              speed of thought
-            </span>
-          </h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {PIPELINE_NODES.map((node) => (
+              <div
+                key={node.id}
+                className="flex flex-col justify-between rounded-xl border border-border bg-surface p-5 shadow-xs"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="text-xs font-mono font-semibold text-accent px-2 py-0.5 rounded-md bg-accent-subtle border border-accent/20">
+                      Node {node.id}
+                    </span>
+                    <span className="text-[11px] font-mono uppercase text-text-muted">
+                      {node.stage}
+                    </span>
+                  </div>
 
-          {/* Subtitle */}
-          <p className="animate-fade-in-delay-1 mt-6 max-w-2xl text-lg md:text-xl text-zinc-400 leading-relaxed">
-            Autonomous AI agent that decomposes complex queries, searches the web
-            across multiple rounds, extracts evidence, and synthesizes
-            comprehensive cited reports.
-          </p>
+                  <h3 className="text-base font-semibold text-text-primary mb-1.5">
+                    {node.name}
+                  </h3>
 
-          {/* CTA Buttons */}
-          <div className="animate-fade-in-delay-2 mt-10 flex flex-col sm:flex-row items-center gap-4">
-            <Link
-              href="/research"
-              className="group relative rounded-full bg-gradient-to-r from-violet-600 to-blue-500 px-8 py-3.5 text-base font-semibold text-white shadow-2xl shadow-violet-500/25 transition-all hover:shadow-violet-500/40 hover:brightness-110 active:scale-[0.98]"
-            >
-              <span className="relative z-10">Start Researching →</span>
+                  <p className="text-xs text-text-secondary leading-relaxed">
+                    {node.role}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Empirical Pillars Section ────────────────────── */}
+      <section className="px-4 sm:px-6 lg:px-8 py-16 border-t border-border">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="flex flex-col gap-3">
+              <div className="h-10 w-10 rounded-lg border border-border bg-surface flex items-center justify-center text-accent">
+                <RefreshCw className="h-5 w-5" />
+              </div>
+              <h3 className="text-base font-semibold text-text-primary">
+                Reflective Iteration
+              </h3>
+              <p className="text-xs text-text-secondary leading-relaxed">
+                A dedicated scientific auditor reviews collected evidence against each sub-facet. If claims are superficial or lack source diversity, the engine reformulates new queries and searches again.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <div className="h-10 w-10 rounded-lg border border-border bg-surface flex items-center justify-center text-accent">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <h3 className="text-base font-semibold text-text-primary">
+                Anti-Bias Neutrality
+              </h3>
+              <p className="text-xs text-text-secondary leading-relaxed">
+                Commercial marketing claims, promotional rhetoric, and sensationalism are scrubbed during content processing. Contested or qualitative claims are explicitly attributed to their origin.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <div className="h-10 w-10 rounded-lg border border-border bg-surface flex items-center justify-center text-accent">
+                <FileCheck2 className="h-5 w-5" />
+              </div>
+              <h3 className="text-base font-semibold text-text-primary">
+                Verifiable Citations
+              </h3>
+              <p className="text-xs text-text-secondary leading-relaxed">
+                Every assertion in the generated dossier is tied to an indexed reference `[N]` mapping to actual source URLs and titles, enabling rapid independent verification.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Recent Archive Section (If reports exist) ───── */}
+      {recentReports.length > 0 && (
+        <section className="px-4 sm:px-6 lg:px-8 py-16 border-t border-border bg-surface/20">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-text-primary">
+                  Recent Synthesized Dossiers
+                </h2>
+                <p className="text-xs text-text-secondary mt-0.5">
+                  Archived research reports from the local repository.
+                </p>
+              </div>
+
+              <Link
+                href="/reports"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline underline-offset-4"
+              >
+                <span>View All ({recentReports.length})</span>
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {recentReports.map((r) => {
+                const title = r.filename
+                  .replace(/\.md$/, "")
+                  .replace(/_\d{8}_\d{6}$/, "")
+                  .replace(/_/g, " ")
+                  .replace(/\b\w/g, (c) => c.toUpperCase());
+                return (
+                  <Link
+                    key={r.filename}
+                    href={`/report/${encodeURIComponent(r.filename)}`}
+                    className="flex flex-col justify-between p-4 rounded-xl border border-border bg-surface hover:border-accent hover:bg-surface-elevated transition-colors shadow-xs"
+                  >
+                    <div>
+                      <span className="text-[10px] font-mono text-text-muted block mb-1">
+                        {(r.size_bytes / 1024).toFixed(1)} KB
+                      </span>
+                      <h4 className="text-sm font-semibold text-text-primary line-clamp-2 leading-snug">
+                        {title}
+                      </h4>
+                    </div>
+                    <div className="mt-4 pt-2 border-t border-border flex items-center justify-between text-xs text-accent font-medium">
+                      <span>Read Dossier</span>
+                      <ArrowRight className="h-3 w-3" />
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── Technical Footer ─────────────────────────────── */}
+      <footer className="border-t border-border px-4 sm:px-6 lg:px-8 py-10 mt-auto bg-surface">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs text-text-secondary">
+            <Compass className="h-4 w-4 text-accent" />
+            <span className="font-semibold text-text-primary">Anveshaka</span>
+            <span className="text-text-muted">·</span>
+            <span className="font-mono text-text-muted">अन्वेषक</span>
+            <span className="text-text-muted">·</span>
+            <span>The one who investigates</span>
+          </div>
+
+          <div className="flex items-center gap-6 text-xs text-text-muted">
+            <Link href="/research" className="hover:text-text-primary transition-colors">
+              Investigate
+            </Link>
+            <Link href="/reports" className="hover:text-text-primary transition-colors">
+              Archive
             </Link>
             <a
               href="https://github.com/AdetyaJamwal04/Anveshaka-The-One-Who-Investigates."
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full border border-zinc-800 bg-zinc-900/50 px-8 py-3.5 text-base font-medium text-zinc-300 backdrop-blur-sm transition-all hover:border-zinc-700 hover:text-white hover:bg-zinc-800/50"
+              className="hover:text-text-primary transition-colors"
             >
-              View on GitHub
+              GitHub
             </a>
           </div>
-        </div>
-
-        {/* Floating Dashboard Preview */}
-        <div className="animate-fade-in-delay-3 relative z-10 mt-16 md:mt-24 w-full max-w-5xl mx-auto">
-          <div className="animate-float rounded-xl border border-zinc-800/60 bg-zinc-950/80 p-6 shadow-2xl shadow-black/50 backdrop-blur-sm">
-            {/* Mock dashboard header */}
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex gap-1.5">
-                <div className="h-3 w-3 rounded-full bg-zinc-700" />
-                <div className="h-3 w-3 rounded-full bg-zinc-700" />
-                <div className="h-3 w-3 rounded-full bg-zinc-700" />
-              </div>
-              <div className="flex-1 mx-4 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center px-3">
-                <Search className="h-3.5 w-3.5 text-zinc-600 mr-2" />
-                <span className="text-sm text-zinc-500">
-                  Compare the clinical efficacy of GLP-1 vs SGLT2 inhibitors...
-                </span>
-              </div>
-            </div>
-
-            {/* Mock pipeline */}
-            <div className="flex items-center justify-between px-8 py-4">
-              {["Synthesize", "Decompose", "Search", "Extract", "Reflect", "Report"].map(
-                (stage, i) => (
-                  <div key={stage} className="flex items-center gap-0 flex-1 last:flex-none">
-                    <div className="flex flex-col items-center gap-1.5">
-                      <div
-                        className={`h-7 w-7 rounded-full flex items-center justify-center text-xs ${
-                          i < 3
-                            ? "bg-emerald-500/10 border border-emerald-500 text-emerald-400"
-                            : i === 3
-                            ? "bg-violet-500/10 border border-violet-500 text-violet-400 shadow-lg shadow-violet-500/20"
-                            : "bg-zinc-900 border border-zinc-700 text-zinc-600"
-                        }`}
-                      >
-                        {i < 3 ? "✓" : i === 3 ? "●" : "○"}
-                      </div>
-                      <span className={`text-[10px] ${i < 3 ? "text-emerald-400" : i === 3 ? "text-violet-400" : "text-zinc-600"}`}>
-                        {stage}
-                      </span>
-                    </div>
-                    {i < 5 && (
-                      <div className="flex-1 mx-2 mt-[-1rem]">
-                        <div className={`h-px ${i < 3 ? "bg-emerald-500/50" : "bg-zinc-800"}`} />
-                      </div>
-                    )}
-                  </div>
-                )
-              )}
-            </div>
-
-            {/* Mock stats */}
-            <div className="flex items-center justify-center gap-6 py-2 text-xs text-zinc-500">
-              <span>Round 2 of 3</span>
-              <span>·</span>
-              <span>28 queries executed</span>
-              <span>·</span>
-              <span>87 evidence claims</span>
-              <span>·</span>
-              <span>19 unique sources</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Features Section ──────────────────────────────── */}
-      <section id="features" className="relative px-6 py-24 md:py-32">
-        <div className="mx-auto max-w-6xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              How Anveshaka Works
-            </h2>
-            <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
-              An 8-stage autonomous pipeline that thinks like a researcher — 
-              decomposing, searching, reflecting, and iterating until the evidence is comprehensive.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                icon: Search,
-                title: "Multi-Round Search",
-                description:
-                  "Up to 3 rounds of iterative web search, each round targeting gaps identified by the reflection agent.",
-                gradient: "from-violet-500 to-purple-600",
-              },
-              {
-                icon: FileText,
-                title: "Evidence Extraction",
-                description:
-                  "LLM-powered extraction of factual claims from search results, each traceable to its source URL.",
-                gradient: "from-blue-500 to-cyan-500",
-              },
-              {
-                icon: RefreshCw,
-                title: "Reflective Iteration",
-                description:
-                  "Evaluates evidence depth, source diversity, and specificity — loops back if gaps are found.",
-                gradient: "from-emerald-500 to-teal-500",
-              },
-              {
-                icon: Shield,
-                title: "Anti-Bias Framework",
-                description:
-                  "Built-in neutrality guardrails ensure balanced, objective reports free from inherent bias.",
-                gradient: "from-amber-500 to-orange-500",
-              },
-              {
-                icon: Zap,
-                title: "Concurrent Processing",
-                description:
-                  "Semaphore-controlled parallel LLM calls with async execution for maximum throughput.",
-                gradient: "from-rose-500 to-pink-500",
-              },
-              {
-                icon: BarChart3,
-                title: "Cited Reports",
-                description:
-                  "Structured markdown reports with numbered inline citations and a full references section.",
-                gradient: "from-indigo-500 to-violet-500",
-              },
-            ].map(({ icon: Icon, title, description, gradient }) => (
-              <div
-                key={title}
-                className="group rounded-xl border border-zinc-800/50 bg-zinc-950/50 p-6 transition-all duration-300 hover:border-zinc-700/50 hover:bg-zinc-900/50"
-              >
-                <div
-                  className={`mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br ${gradient} shadow-lg`}
-                >
-                  <Icon className="h-5 w-5 text-white" />
-                </div>
-                <h3 className="mb-2 text-lg font-semibold text-white">
-                  {title}
-                </h3>
-                <p className="text-sm text-zinc-400 leading-relaxed">
-                  {description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Pipeline Diagram Section ──────────────────────── */}
-      <section className="px-6 py-16 md:py-24 border-t border-zinc-900">
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            The Research Pipeline
-          </h2>
-          <p className="text-zinc-400 mb-12 max-w-xl mx-auto">
-            8 specialized agents working in concert, orchestrated by LangGraph
-          </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {[
-              "Query Synthesizer",
-              "Sub-question Generator",
-              "Search Query Generator",
-              "Search Executor",
-              "Evidence Extractor",
-              "Knowledge Store",
-              "Reflection Agent",
-              "Report Synthesizer",
-            ].map((agent, i) => (
-              <div key={agent} className="flex items-center gap-3">
-                <div className="rounded-lg border border-zinc-800 bg-zinc-900/80 px-4 py-2 text-sm text-zinc-300">
-                  <span className="mr-2 text-xs text-violet-400 font-mono">
-                    {i + 1}
-                  </span>
-                  {agent}
-                </div>
-                {i < 7 && (
-                  <span className="text-zinc-700 hidden sm:inline">→</span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Footer ────────────────────────────────────────── */}
-      <footer className="border-t border-zinc-900 px-6 py-12">
-        <div className="mx-auto max-w-6xl flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-violet-600 to-blue-500">
-              <Search className="h-3 w-3 text-white" />
-            </div>
-            <span className="text-sm font-semibold text-zinc-400">
-              Anveshaka
-            </span>
-            <span className="text-xs text-zinc-600 ml-1">अन्वेषक</span>
-          </div>
-          <p className="text-sm text-zinc-600">
-            Built by{" "}
-            <a
-              href="https://github.com/AdetyaJamwal04"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-zinc-400 hover:text-white transition-colors"
-            >
-              AdetyaJamwal04
-            </a>
-          </p>
         </div>
       </footer>
     </div>

@@ -14,11 +14,13 @@ if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
 from datetime import datetime
-from typing import TypedDict, List
+from typing import List, cast
+from typing_extensions import TypedDict
 from langgraph.graph import StateGraph, END
 import asyncio
 
-sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stdout, "reconfigure"):
+    getattr(sys.stdout, "reconfigure")(encoding="utf-8")
 
 from schemas.schema import QuerySynthesis, SubQuestion, SearchQuery, SearchResult, SubQuestionVerdict
 from agents.knowledge_store import KnowledgeStore
@@ -164,28 +166,32 @@ workflow.add_edge("report", END)
 
 app = workflow.compile()
 
+async def run_research(query: str | None = None) -> str:
+    test_query = query or (
+        "Compare the coconut water made available by the two companies, namely Raw Pressery and Yu !, "
+        "in terms of taste, nutritional value, chemicals used and packaging. Which one is better and a healthier option?"
+    )
+    print(f"Starting LangGraph run for query: '{test_query}'")
+
+    inputs = cast(ResearchState, {"query": test_query})
+    final_state = None
+    async for state in app.astream(inputs, stream_mode="values"):
+        final_state = state
+
+    # Save report to disk only when running as CLI
+    report = final_state.get("report_markdown", "") if final_state else ""
+    if report and final_state is not None:
+        reports_dir = os.path.join(os.path.dirname(backend_dir), "reports")
+        os.makedirs(reports_dir, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        synthesis = final_state.get("synthesis")
+        entities = synthesis.entities if synthesis else []
+        topic_slug = slugify_topic(test_query, entities)
+        filename = os.path.join(reports_dir, f"{topic_slug}_{timestamp}.md")
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(report)
+        print(f"Report saved to: {filename}")
+    return report
+
 if __name__ == "__main__":
-    async def run_research():
-        test_query = "Compare the coconut water made available by the two companies, namely Raw Pressery and Yu !, in terms of taste, nutritional value, chemicals used and packaging. Which one is better and a healthier option?"
-        print(f"Starting LangGraph run for query: '{test_query}'")
-
-        inputs = {"query": test_query}
-        final_state = None
-        async for state in app.astream(inputs, stream_mode="values"):
-            final_state = state
-
-        # Save report to disk only when running as CLI
-        report = final_state.get("report_markdown", "") if final_state else ""
-        if report:
-            reports_dir = os.path.join(os.path.dirname(backend_dir), "reports")
-            os.makedirs(reports_dir, exist_ok=True)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            synthesis = final_state.get("synthesis")
-            entities = synthesis.entities if synthesis else []
-            topic_slug = slugify_topic(test_query, entities)
-            filename = os.path.join(reports_dir, f"{topic_slug}_{timestamp}.md")
-            with open(filename, "w", encoding="utf-8") as f:
-                f.write(report)
-            print(f"Report saved to: {filename}")
-
     asyncio.run(run_research())

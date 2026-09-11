@@ -46,25 +46,9 @@ Extract relevant claims from the following sources:
 
 
 def _dedupe_by_url(search_results: List[SearchResult]) -> List[SearchResult]:
-    """
-    Removes duplicate sources within a single sub-question's group. The same
-    URL can legitimately appear under different sub-questions (a source
-    relevant to two facets), but within ONE sub-question's batch, the same
-    URL showing up multiple times (e.g. because two of its search queries
-    both surfaced it) just means the LLM sees it under two different src_N
-    labels and extracts the same fact twice -- sometimes worded slightly
-    differently each time, which makes it hard to catch as a duplicate later.
-    Deduping here, before the prompt is built, is the only place this is
-    cheap and reliable to fix.
-    """
+    """Removes duplicate sources within a single sub-question's group, keeping first occurrence."""
     seen = set()
-    deduped = []
-    for sr in search_results:
-        if sr.url in seen:
-            continue
-        seen.add(sr.url)
-        deduped.append(sr)
-    return deduped
+    return [sr for sr in search_results if not (sr.url in seen or seen.add(sr.url))]
 
 
 def _build_sources_block(

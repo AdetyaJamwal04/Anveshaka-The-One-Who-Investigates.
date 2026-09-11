@@ -114,19 +114,9 @@ async def generate_sub_questions(synthesis: QuerySynthesis) -> list[SubQuestion]
     """
     Main entry point. Branches on synthesis.query_architecture.
     """
-    if synthesis.query_architecture == "single_question":
-        return [
-            SubQuestion(
-                id="sq_1",
-                text=synthesis.objective,
-                priority=1,
-                parent_intent=synthesis.intent,
-                parent_entities=synthesis.entities,
-            )
-        ]
-
-    # multi_question branch
-    raw_items = await _call_llm_for_decomposition(synthesis)
+    raw_items = []
+    if synthesis.query_architecture != "single_question":
+        raw_items = await _call_llm_for_decomposition(synthesis)
 
     if not raw_items:
         return [

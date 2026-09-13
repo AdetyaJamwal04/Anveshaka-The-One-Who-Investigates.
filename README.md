@@ -72,10 +72,10 @@ TAVILY_API_KEY=your_tavily_key_here
 GEMINI_API_KEY=your_gemini_key_here
 ```
 
-Optionally set the model (defaults to `gemini-2.5-flash-lite`):
+Optionally set the model (defaults to `gemini-3.5-flash-lite`):
 
 ```env
-MODEL_NAME=gemini-2.5-flash-lite
+MODEL_NAME=gemini-3.5-flash-lite
 ```
 
 ## Usage
@@ -211,11 +211,78 @@ Anveshaka/
 
 ## Deployment
 
-### Backend (Google Cloud Run)
-The FastAPI backend is containerized via the included `Dockerfile` and designed for deployment to Google Cloud Run. This provides serverless scaling and native SSE streaming support.
+### Architecture
 
-### Frontend (Firebase App Hosting)
-The Next.js 15 frontend is optimized for deployment via Firebase App Hosting or Vercel, providing global edge caching for the UI.
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Client (Browser)                       │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│               Frontend (Firebase App Hosting)               │
+│                   Next.js 15 SSR / Edge                     │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ Server-Side Proxy (SSE Stream)
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 Backend (Google Cloud Run)                  │
+│                     FastAPI + Uvicorn                       │
+│           (LangGraph + Gemini 3.5 + Tavily API)             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 1. Backend (Google Cloud Run)
+
+The FastAPI backend is containerized via the included `Dockerfile` and optimized for Google Cloud Run with serverless autoscaling and resilient SSE streaming (heartbeat pings prevent proxy disconnects):
+
+1. **Authenticate and set project:**
+   ```bash
+   gcloud auth login
+   gcloud config set project YOUR_PROJECT_ID
+   ```
+
+2. **Deploy from repository root:**
+   ```bash
+   gcloud run deploy anveshaka-backend \
+     --source . \
+     --region us-central1 \
+     --port 8000 \
+     --allow-unauthenticated \
+     --set-env-vars="TAVILY_API_KEY=your_tavily_key,GEMINI_API_KEY=your_gemini_key,MODEL_NAME=gemini-3.5-flash-lite"
+   ```
+   > The `.gcloudignore` file ensures `frontend/`, `.venv/`, and dev caches are excluded from the Cloud Build upload.
+
+3. **Copy the deployed Service URL:**
+   ```
+   Service URL: https://anveshaka-backend-xxxxxx.us-central1.run.app
+   ```
+
+### 2. Frontend (Firebase App Hosting)
+
+The Next.js 15 frontend utilizes Server-Side Rendering (SSR) and API Route proxies, deployed via Firebase App Hosting:
+
+1. **Install Firebase CLI & login:**
+   ```bash
+   npm install -g firebase-tools
+   firebase login
+   ```
+
+2. **Configure backend URL in `frontend/apphosting.yaml`:**
+   ```yaml
+   env:
+     - variable: BACKEND_URL
+       value: https://anveshaka-backend-xxxxxx.us-central1.run.app
+       availability:
+         - BUILD
+         - RUNTIME
+   ```
+
+3. **Deploy frontend:**
+   ```bash
+   cd frontend
+   firebase deploy
+   ```
 
 ## Tech Stack
 

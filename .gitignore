@@ -15,4 +15,11 @@ node_modules/
 frontend/.next/
 frontend/node_modules/
 AGENTS.md
-CLAUDE.mdfrontend/.env*
+CLAUDE.md
+frontend/.env*
+.agents/
+.claude/
+frontend/.agents/
+frontend/.claude/
+frontend/skills-lock.json
+

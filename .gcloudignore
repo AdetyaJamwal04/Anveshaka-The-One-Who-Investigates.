@@ -1,0 +1,35 @@
+.gcloudignore
+.git/
+.gitignore
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.egg-info/
+
+# Environment files -- never upload secrets
+.env
+.env.*
+
+# Frontend -- not needed by the backend container
+frontend/
+
+# Development / test artifacts
+reports/
+backend/tests/
+fix.py
+test_direct.py
+test_stream.py
+search_local.py
+personal_run/
+
+# IDE / OS
+.gemini/
+.vscode/
+*.ipynb
+.DS_Store
+Thumbs.db

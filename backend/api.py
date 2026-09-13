@@ -130,76 +130,99 @@ async def research_event_generator(query: str):
     """
     Generator that yields Server-Sent Events (SSE) as LangGraph nodes finish.
     Sends enriched payloads including sub-questions, stats, and the final report.
+    Emits periodic ping heartbeats every 3s to prevent proxy/browser stream timeouts.
     """
-    try:
-        async for event in research_graph.astream({"query": query}, stream_mode="updates"):
-            for node_name, state_update in event.items():
-                stage = NODE_DISPLAY_NAMES.get(node_name, node_name)
+    queue: asyncio.Queue = asyncio.Queue()
+    done = asyncio.Event()
 
-                payload = {
-                    "node": node_name,
-                    "stage": stage,
-                    "status": "completed",
-                }
+    async def execute_graph():
+        try:
+            async for event in research_graph.astream({"query": query}, stream_mode="updates"):
+                for node_name, state_update in event.items():
+                    stage = NODE_DISPLAY_NAMES.get(node_name, node_name)
 
-                # Enrich with state data for the frontend
-                if isinstance(state_update, dict):
-                    # Sub-questions from decompose
-                    if "sub_questions" in state_update:
-                        sqs = state_update["sub_questions"]
-                        payload["sub_questions"] = [
-                            {
-                                "id": sq.id,
-                                "text": sq.text,
-                                "priority": sq.priority,
-                                "parent_intent": getattr(sq, "parent_intent", ""),
+                    payload = {
+                        "node": node_name,
+                        "stage": stage,
+                        "status": "completed",
+                    }
+
+                    # Enrich with state data for the frontend
+                    if isinstance(state_update, dict):
+                        # Sub-questions from decompose
+                        if "sub_questions" in state_update:
+                            sqs = state_update["sub_questions"]
+                            payload["sub_questions"] = [
+                                {
+                                    "id": sq.id,
+                                    "text": sq.text,
+                                    "priority": sq.priority,
+                                    "parent_intent": getattr(sq, "parent_intent", ""),
+                                }
+                                for sq in sqs
+                            ]
+
+                        # Search queries count
+                        if "search_queries" in state_update:
+                            payload["query_count"] = len(state_update["search_queries"])
+
+                        # Search results count
+                        if "search_results" in state_update:
+                            payload["result_count"] = len(state_update["search_results"])
+
+                        # Evidence store stats
+                        if "store" in state_update:
+                            store = state_update["store"]
+                            payload["evidence_count"] = len(store.evidence)
+                            payload["source_count"] = len(set(e.source_url for e in store.evidence))
+
+                        # Round number
+                        if "round_num" in state_update:
+                            payload["round_num"] = state_update["round_num"]
+
+                        # Reflection verdicts
+                        if "verdicts" in state_update:
+                            verdicts = state_update["verdicts"]
+                            payload["verdicts"] = [
+                                {"sub_question_id": v.sub_question_id, "verdict": v.verdict}
+                                for v in verdicts
+                            ]
+
+                        # Final report
+                        if "report_markdown" in state_update:
+                            final_payload = {
+                                "node": "END",
+                                "stage": "Complete",
+                                "status": "completed",
+                                "report": str(state_update["report_markdown"]),
                             }
-                            for sq in sqs
-                        ]
+                            await queue.put(f"data: {json.dumps(payload)}\n\n")
+                            await queue.put(f"data: {json.dumps(final_payload)}\n\n")
+                            return
 
-                    # Search queries count
-                    if "search_queries" in state_update:
-                        payload["query_count"] = len(state_update["search_queries"])
+                    await queue.put(f"data: {json.dumps(payload)}\n\n")
 
-                    # Search results count
-                    if "search_results" in state_update:
-                        payload["result_count"] = len(state_update["search_results"])
+        except Exception as e:
+            print(f"[API] SSE stream error: {e}")
+            await queue.put(f"data: {json.dumps({'error': str(e)})}\n\n")
+        finally:
+            done.set()
 
-                    # Evidence store stats
-                    if "store" in state_update:
-                        store = state_update["store"]
-                        payload["evidence_count"] = len(store.evidence)
-                        payload["source_count"] = len(set(e.source_url for e in store.evidence))
+    task = asyncio.create_task(execute_graph())
 
-                    # Round number
-                    if "round_num" in state_update:
-                        payload["round_num"] = state_update["round_num"]
-
-                    # Reflection verdicts
-                    if "verdicts" in state_update:
-                        verdicts = state_update["verdicts"]
-                        payload["verdicts"] = [
-                            {"sub_question_id": v.sub_question_id, "verdict": v.verdict}
-                            for v in verdicts
-                        ]
-
-                    # Final report
-                    if "report_markdown" in state_update:
-                        final_payload = {
-                            "node": "END",
-                            "stage": "Complete",
-                            "status": "completed",
-                            "report": str(state_update["report_markdown"]),
-                        }
-                        yield f"data: {json.dumps(payload)}\n\n"
-                        yield f"data: {json.dumps(final_payload)}\n\n"
-                        return
-
-                yield f"data: {json.dumps(payload)}\n\n"
-
-    except Exception as e:
-        print(f"[API] SSE stream error: {e}")
-        yield f"data: {json.dumps({'error': str(e)})}\n\n"
+    try:
+        while not done.is_set() or not queue.empty():
+            try:
+                msg = await asyncio.wait_for(queue.get(), timeout=3.0)
+                yield msg
+            except asyncio.TimeoutError:
+                # SSE comment heartbeat keeps intermediate proxies from closing the socket
+                yield ": ping\n\n"
+    finally:
+        if not task.done():
+            task.cancel()
+        # Brief flush window for TCP buffers
+        await asyncio.sleep(0.5)
 
 @app.get("/research/stream")
 async def stream_research(query: str = Query(..., min_length=5, max_length=1000)):

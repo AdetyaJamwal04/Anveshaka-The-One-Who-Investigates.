@@ -11,5 +11,5 @@ load_dotenv(find_dotenv())
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
-# LLM MODEL: Defaults to gemini-2.5-flash-lite for ultra-fast pipeline throughput
-model_name = os.getenv("MODEL_NAME", "gemini-2.5-flash-lite")
+# LLM MODEL: Defaults to gemini-3.5-flash-lite for ultra-fast pipeline throughput
+model_name = os.getenv("MODEL_NAME", "gemini-3.5-flash-lite")

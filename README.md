@@ -209,6 +209,14 @@ Anveshaka/
 └── .env                              # API keys
 ```
 
+## Deployment
+
+### Backend (Google Cloud Run)
+The FastAPI backend is containerized via the included `Dockerfile` and designed for deployment to Google Cloud Run. This provides serverless scaling and native SSE streaming support.
+
+### Frontend (Firebase App Hosting)
+The Next.js 15 frontend is optimized for deployment via Firebase App Hosting or Vercel, providing global edge caching for the UI.
+
 ## Tech Stack
 
 | Component | Technology |

@@ -35,7 +35,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "*",  # lock down to specific domains in production
+        "http://172.23.64.1:3000",
+        "*"# lock down to specific domains in production
     ],
     allow_methods=["*"],
     allow_headers=["*"],

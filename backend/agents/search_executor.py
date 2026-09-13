@@ -3,7 +3,8 @@ import asyncio
 import os
 from typing import List
 from schemas.schema import SearchQuery, SearchResult
-from models.web_client import client as tavily_client
+from tavily import AsyncTavilyClient
+tavily_client = AsyncTavilyClient()
 
 TAVILY_SEMAPHORE = asyncio.Semaphore(10)
 DEFAULT_SEARCH_DEPTH = os.getenv("TAVILY_SEARCH_DEPTH", "basic")
@@ -123,3 +124,4 @@ async def execute_and_clean_searches(
         results.extend(sublist)
 
     return results
+

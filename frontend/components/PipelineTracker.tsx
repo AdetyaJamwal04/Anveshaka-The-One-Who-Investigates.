@@ -1,7 +1,7 @@
 "use client";
 
 import type { StageState } from "@/lib/types";
-import { Check, Loader2 } from "lucide-react";
+import { Check } from "lucide-react";
 
 interface PipelineTrackerProps {
   stages: StageState[];
@@ -9,60 +9,58 @@ interface PipelineTrackerProps {
 
 export default function PipelineTracker({ stages }: PipelineTrackerProps) {
   return (
-    <div className="w-full py-4 px-1" role="region" aria-label="Investigation Pipeline Execution">
-      {/* Step progression row */}
-      <div className="flex items-center justify-between gap-1 sm:gap-2">
+    <div className="w-full py-6" role="region" aria-label="Expedition Pipeline Ledger">
+      <div className="flex items-center w-full">
         {stages.map((stage, index) => {
           const isCompleted = stage.status === "completed";
           const isActive = stage.status === "active";
+          const isPending = stage.status === "pending";
 
           return (
             <div key={stage.name} className="flex items-center flex-1 last:flex-none">
               {/* Stage Node */}
-              <div className="flex flex-col items-center gap-1.5 sm:gap-2 min-w-[54px] sm:min-w-[70px]">
-                <div
-                  className={`relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg border text-xs font-mono transition-all duration-300 ${
-                    isCompleted
-                      ? "border-success/60 bg-success-subtle text-success font-semibold"
-                      : isActive
-                      ? "border-accent bg-accent-subtle text-accent font-semibold ring-2 ring-accent/20"
-                      : "border-border bg-surface text-text-muted"
-                  }`}
-                  aria-label={`${stage.name} stage: ${stage.status}`}
-                >
-                  {isCompleted ? (
-                    <Check className="h-4 w-4 stroke-[2.5]" />
-                  ) : isActive ? (
-                    <Loader2 className="h-4 w-4 animate-spin text-accent" />
-                  ) : (
-                    <span>0{index + 1}</span>
-                  )}
+              <div className="flex flex-col gap-1.5 min-w-[100px]">
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`flex h-[18px] w-[18px] items-center justify-center border transition-all duration-300 font-mono text-[9px] font-semibold tracking-wider ${
+                      isCompleted
+                        ? "bg-success border-success text-background"
+                        : isActive
+                        ? "bg-accent border-accent text-background"
+                        : "bg-transparent border-border text-text-muted border-dashed"
+                    }`}
+                    aria-label={`${stage.name} stage: ${stage.status}`}
+                  >
+                    {isCompleted ? (
+                      <Check className="h-3 w-3 stroke-[3]" />
+                    ) : (
+                      <span>0{index + 1}</span>
+                    )}
+                  </div>
+                  <span
+                    className={`text-[11px] uppercase tracking-wider font-semibold ${
+                      isCompleted
+                        ? "text-text-primary"
+                        : isActive
+                        ? "text-accent"
+                        : "text-text-muted"
+                    }`}
+                  >
+                    {stage.name}
+                  </span>
                 </div>
-
-                {/* Stage Title */}
-                <span
-                  className={`text-[11px] sm:text-xs tracking-tight transition-colors duration-200 text-center ${
-                    isCompleted
-                      ? "text-text-primary font-medium"
-                      : isActive
-                      ? "text-accent font-semibold"
-                      : "text-text-muted"
-                  }`}
-                >
-                  {stage.name}
-                </span>
               </div>
 
               {/* Connecting Rule */}
               {index < stages.length - 1 && (
-                <div className="flex-1 mx-1.5 sm:mx-3 -mt-5">
-                  <div className="h-0.5 w-full bg-border rounded-full overflow-hidden">
+                <div className="flex-1 mx-4 -mt-[18px]">
+                  <div className="h-[1px] w-full bg-border">
                     <div
                       className={`h-full transition-all duration-500 ease-out ${
                         isCompleted
                           ? "w-full bg-success"
                           : isActive
-                          ? "w-1/2 bg-accent animate-pulse"
+                          ? "w-1/2 bg-accent"
                           : "w-0"
                       }`}
                     />

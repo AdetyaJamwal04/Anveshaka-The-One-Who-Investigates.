@@ -15,4 +15,4 @@ node_modules/
 frontend/.next/
 frontend/node_modules/
 AGENTS.md
-CLAUDE.md
+CLAUDE.mdfrontend/.env*

@@ -6,559 +6,178 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
-  --color-surface-secondary: var(--surface-secondary);
   --color-surface-elevated: var(--surface-elevated);
   --color-border: var(--border);
   --color-border-subtle: var(--border-subtle);
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
-  --color-accent: var(--accent);
+  
+  --color-accent: var(--accent); /* Brass/Ochre */
   --color-accent-hover: var(--accent-hover);
   --color-accent-subtle: var(--accent-subtle);
-  --color-amber: var(--amber);
-  --color-amber-subtle: var(--amber-subtle);
-  --color-success: var(--success);
+  
+  --color-success: var(--success); /* Field Sage */
   --color-success-subtle: var(--success-subtle);
-  --color-error: var(--error);
+  
+  --color-error: var(--error); /* Oxidized Rust */
   --color-error-subtle: var(--error-subtle);
 
-  --font-inter: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --font-sans: var(--font-geist), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: var(--font-newsreader), Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   THEME TOKENS: Ink + Ivory + Cobalt + Amber
+   THEME TOKENS: Field Archive Ledger
    ═══════════════════════════════════════════════════════════════ */
 
-/* Light Mode — Editorial Paper / Ivory */
+/* Light Mode — Aged Paper & Iron Ink */
 :root {
-  --background: #FAFAF7;
-  --foreground: #17191D;
-  --surface: #F3F3EE;
-  --surface-secondary: #FFFFFF;
-  --surface-elevated: #FFFFFF;
-  --border: #D4D4CB;
-  --border-subtle: #E2E2DA;
-  --text-primary: #17191D;
-  --text-secondary: #555B64;
-  --text-muted: #777D85;
+  --background: #F7F6F2;
+  --foreground: #1B1D1F;
+  --surface: #EFECE4;
+  --surface-elevated: #E4E0D5;
+  --border: #D1CCC0;
+  --border-subtle: #E2DDD3;
+  
+  --text-primary: #1B1D1F;
+  --text-secondary: #5B6068;
+  --text-muted: #8F949D;
 
-  --accent: #3157E8;
-  --accent-hover: #2347D6;
-  --accent-subtle: rgba(49, 87, 232, 0.08);
+  --accent: #B8863C;
+  --accent-hover: #A07433;
+  --accent-subtle: rgba(184, 134, 60, 0.1);
 
-  --amber: #C98216;
-  --amber-subtle: rgba(201, 130, 22, 0.12);
+  --success: #3C6E64;
+  --success-subtle: rgba(60, 110, 100, 0.1);
 
-  --success: #23845B;
-  --success-subtle: rgba(35, 132, 91, 0.12);
-
-  --error: #C74343;
-  --error-subtle: rgba(199, 67, 67, 0.12);
+  --error: #A6483A;
+  --error-subtle: rgba(166, 72, 58, 0.1);
 }
 
-/* Dark Mode — Deep Focused Ink */
+/* Dark Mode — Graphite Ink & Brass */
 .dark {
-  --background: #0B0D10;
-  --foreground: #F1F2EE;
-  --surface: #111418;
-  --surface-secondary: #171B21;
-  --surface-elevated: #1D2229;
-  --border: #2A3038;
-  --border-subtle: #1E232B;
-  --text-primary: #F1F2EE;
-  --text-secondary: #B6BBC3;
-  --text-muted: #7D848E;
+  --background: #14171C;
+  --foreground: #E7E4DC;
+  --surface: #1A1E24;
+  --surface-elevated: #21262E;
+  --border: #2E3540;
+  --border-subtle: #242932;
+  
+  --text-primary: #E7E4DC;
+  --text-secondary: #9FA5AF;
+  --text-muted: #5C6470;
 
-  --accent: #4267F2;
-  --accent-hover: #6483F5;
-  --accent-subtle: rgba(66, 103, 242, 0.14);
+  --accent: #B8863C;
+  --accent-hover: #D19A44;
+  --accent-subtle: rgba(184, 134, 60, 0.15);
 
-  --amber: #E4AB4A;
-  --amber-subtle: rgba(228, 171, 74, 0.14);
+  --success: #3C6E64;
+  --success-subtle: rgba(60, 110, 100, 0.15);
 
-  --success: #2E9E6E;
-  --success-subtle: rgba(46, 158, 110, 0.14);
-
-  --error: #E05353;
-  --error-subtle: rgba(224, 83, 83, 0.14);
-}
-
-/* ── Base Setup ─────────────────────────────────────────────── */
-html {
-  scroll-behavior: smooth;
-  color-scheme: light dark;
-}
-
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-inter);
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-/* ── Refined Minimal Scrollbar ───────────────────────────────── */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  --error: #A6483A;
+  --error-subtle: rgba(166, 72, 58, 0.15);
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   EDITORIAL REPORT MARKDOWN STYLES
+   BASE LAYER STYLES
    ═══════════════════════════════════════════════════════════════ */
-.report-content {
-  color: var(--text-primary);
-  line-height: 1.75;
-  font-size: 1.05rem;
-}
 
-.report-content h1 {
-  font-size: 1.85rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: -0.025em;
-  margin-top: 2.25rem;
-  margin-bottom: 0.85rem;
-  padding-bottom: 0.65rem;
-  border-bottom: 1px solid var(--border);
-}
+@layer base {
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
 
-.report-content h2 {
-  font-size: 1.45rem;
-  font-weight: 650;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
-  margin-top: 2rem;
-  margin-bottom: 0.65rem;
-  padding-bottom: 0.35rem;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.report-content h3 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.report-content p {
-  margin-bottom: 1.15rem;
-  color: var(--text-secondary);
-  line-height: 1.8;
-}
-
-.report-content ul,
-.report-content ol {
-  margin-bottom: 1.15rem;
-  padding-left: 1.6rem;
-  color: var(--text-secondary);
-}
-
-.report-content li {
-  margin-bottom: 0.4rem;
-  line-height: 1.75;
-}
-
-.report-content blockquote {
-  border-left: 3px solid var(--accent);
-  padding: 0.5rem 0 0.5rem 1.25rem;
-  margin: 1.5rem 0;
-  color: var(--text-secondary);
-  font-style: italic;
-  background-color: var(--surface);
-  border-radius: 0 0.375rem 0.375rem 0;
-}
-
-.report-content code {
-  font-family: var(--font-mono);
-  background-color: var(--surface);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
-  padding: 0.15rem 0.4rem;
-  border-radius: 0.3rem;
-  font-size: 0.88em;
-}
-
-.report-content pre {
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  overflow-x: auto;
-  margin: 1.25rem 0;
-}
-
-.report-content pre code {
-  background: transparent;
-  border: none;
-  padding: 0;
-}
-
-.report-content table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1.5rem 0;
-  font-size: 0.95rem;
-  overflow-x: auto;
-  display: block;
-}
-
-.report-content th {
-  background-color: var(--surface);
-  color: var(--text-primary);
-  font-weight: 600;
-  text-align: left;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border);
-}
-
-.report-content td {
-  color: var(--text-secondary);
-  padding: 0.7rem 1rem;
-  border: 1px solid var(--border-subtle);
-}
-
-.report-content tr:nth-child(even) td {
-  background-color: var(--surface);
-}
-
-/* Citation links rendered as clean academic badges */
-.report-content a {
-  color: var(--accent);
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.15s ease;
-}
-
-.report-content a:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.report-content a[href^="#"],
-.report-content a:has(span) {
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 0.8em;
-  padding: 0.05rem 0.35rem;
-  margin: 0 0.15rem;
-  background-color: var(--accent-subtle);
-  color: var(--accent);
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.25rem;
-  vertical-align: baseline;
-  text-decoration: none !important;
-}
-
-.report-content a[href^="#"]:hover {
-  background-color: var(--accent);
-  color: #ffffff;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   EXECUTIVE DOSSIER PRINT & PDF STYLING
+   CUSTOM COMPONENTS & UTILITIES
    ═══════════════════════════════════════════════════════════════ */
-@media print {
-  /* 1. Hide all screen-only chrome, navigations, inputs, and interactive widgets */
-  nav,
-  header,
-  footer,
-  aside,
-  button,
-  form,
-  input,
-  textarea,
-  [role="navigation"],
-  [role="radiogroup"],
-  .no-print,
-  .theme-toggle,
-  .print\:hidden {
-    display: none !important;
-  }
 
-  /* 2. Absolute Clean Slate: Pure White Paper & Zero Dark Mode Bleed */
-  :root,
-  html,
-  html.dark,
-  body,
-  .dark {
-    --background: #ffffff !important;
-    --foreground: #0f172a !important;
-    --surface: #ffffff !important;
-    --surface-secondary: #ffffff !important;
-    --surface-elevated: #ffffff !important;
-    --border: #e2e8f0 !important;
-    --border-subtle: #f1f5f9 !important;
-    --text-primary: #0f172a !important;
-    --text-secondary: #334155 !important;
-    --text-muted: #64748b !important;
-    --accent: #1d4ed8 !important;
-    background-color: #ffffff !important;
-    color: #0f172a !important;
+@layer utilities {
+  .prose-ledger {
+    max-width: 80ch;
+    color: var(--foreground);
+    font-family: var(--font-serif);
+    line-height: 1.7;
   }
-
-  *, *::before, *::after {
-    box-shadow: none !important;
-    text-shadow: none !important;
-    transition: none !important;
+  .prose-ledger h1, .prose-ledger h2, .prose-ledger h3 {
+    font-family: var(--font-serif);
+    color: var(--foreground);
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    font-weight: 500;
   }
-
-  html, body {
-    background: #ffffff !important;
-    color: #0f172a !important;
-    font-size: 10pt !important;
-    line-height: 1.6 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+  .prose-ledger h1 { font-size: 2.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+  .prose-ledger h2 { font-size: 1.75rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.25rem; }
+  .prose-ledger h3 { font-size: 1.25rem; }
+  
+  .prose-ledger p { margin-bottom: 1.25em; }
+  .prose-ledger strong { color: var(--foreground); font-weight: 600; }
+  
+  .prose-ledger blockquote {
+    border-left: 2px solid var(--accent);
+    padding-left: 1rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin: 1.5em 0;
   }
-
-  /* 3. Strip layout constraints and borders from page wrappers */
-  body > div,
-  main,
-  article,
-  section,
-  .max-w-7xl,
-  .max-w-3xl,
-  .mx-auto {
-    max-width: 100% !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    background: #ffffff !important;
-    color: #0f172a !important;
+  
+  .prose-ledger ul {
+    list-style-type: square;
+    padding-left: 1.5rem;
+    margin-bottom: 1.25em;
   }
-
-  /* 4. Publication Header / Briefing Banner */
-  .print-dossier-banner {
-    display: block !important;
-    border-bottom: 2pt solid #0f172a !important;
-    padding-bottom: 12pt !important;
-    margin-bottom: 18pt !important;
+  
+  .prose-ledger li {
+    margin-bottom: 0.5em;
   }
-
-  .print-dossier-banner .banner-top {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    font-size: 8.5pt !important;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace !important;
-    color: #475569 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.08em !important;
-    margin-bottom: 6pt !important;
+  
+  .prose-ledger code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background-color: var(--surface);
+    padding: 0.15em 0.3em;
+    border: 1px solid var(--border);
   }
-
-  .print-dossier-banner .banner-top strong {
-    color: #0f172a !important;
-    font-weight: 700 !important;
+  
+  .prose-ledger pre {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    margin: 1.5em 0;
   }
-
-  .print-dossier-banner h1 {
-    font-size: 22pt !important;
-    font-weight: 800 !important;
-    color: #0f172a !important;
-    line-height: 1.25 !important;
-    margin: 0 0 8pt 0 !important;
-    font-family: Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif !important;
+  
+  .prose-ledger table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+    font-family: var(--font-sans);
+    font-size: 0.9em;
   }
-
-  .print-dossier-banner .banner-meta {
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 8pt !important;
-    border-top: 1pt solid #cbd5e1 !important;
-    padding-top: 6pt !important;
-    font-size: 8pt !important;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace !important;
-    color: #334155 !important;
+  .prose-ledger th, .prose-ledger td {
+    border: 1px solid var(--border);
+    padding: 0.75rem;
+    text-align: left;
   }
-
-  .print-dossier-banner .banner-meta div span {
-    display: block !important;
-    font-size: 7pt !important;
-    color: #64748b !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
+  .prose-ledger th {
+    background-color: var(--surface-elevated);
+    font-weight: 500;
   }
-
-  /* 5. Editorial Report Body Typography */
-  .report-content {
-    font-family: Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, "Times New Roman", serif !important;
-    color: #111827 !important;
-    font-size: 10.5pt !important;
-    line-height: 1.65 !important;
-    text-align: left !important;
-  }
-
-  .report-content h1,
-  .report-content h2,
-  .report-content h3,
-  .report-content h4 {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif !important;
-    color: #0f172a !important;
-    break-after: avoid;
-    page-break-after: avoid;
-    font-weight: 700 !important;
-  }
-
-  .report-content h1 {
-    font-size: 18pt !important;
-    margin: 20pt 0 10pt !important;
-    padding-bottom: 4pt !important;
-    border-bottom: 1.5pt solid #0f172a !important;
-  }
-
-  .report-content h2 {
-    font-size: 14pt !important;
-    color: #1e3a8a !important;
-    margin: 18pt 0 8pt !important;
-    padding-bottom: 3pt !important;
-    border-bottom: 1pt solid #cbd5e1 !important;
-  }
-
-  .report-content h3 {
-    font-size: 11.5pt !important;
-    color: #1e293b !important;
-    margin: 14pt 0 6pt !important;
-  }
-
-  .report-content h4 {
-    font-size: 10.5pt !important;
-    color: #334155 !important;
-    margin: 10pt 0 4pt !important;
-  }
-
-  .report-content p {
-    color: #111827 !important;
-    margin-bottom: 9pt !important;
-    orphans: 3;
-    widows: 3;
-  }
-
-  .report-content ul,
-  .report-content ol {
-    color: #111827 !important;
-    margin: 6pt 0 10pt 16pt !important;
-    padding: 0 !important;
-  }
-
-  .report-content li {
-    margin-bottom: 3.5pt !important;
-    line-height: 1.6 !important;
-  }
-
-  .report-content strong {
-    font-weight: 700 !important;
-    color: #0f172a !important;
-  }
-
-  /* 6. Executive Data Tables */
-  .report-content table {
-    width: 100% !important;
-    border-collapse: collapse !important;
-    margin: 14pt 0 !important;
-    font-size: 9pt !important;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  .report-content th {
-    background-color: #f1f5f9 !important;
-    color: #0f172a !important;
-    font-weight: 700 !important;
-    border: 1pt solid #94a3b8 !important;
-    padding: 6pt 8pt !important;
-    text-align: left !important;
-  }
-
-  .report-content td {
-    color: #1e293b !important;
-    border: 1pt solid #cbd5e1 !important;
-    padding: 5pt 8pt !important;
-    vertical-align: top !important;
-  }
-
-  .report-content tr:nth-child(even) td {
-    background-color: #f8fafc !important;
-  }
-
-  /* 7. Executive Callouts / Blockquotes */
-  .report-content blockquote {
-    border-left: 3.5pt solid #1d4ed8 !important;
-    background-color: #f8fafc !important;
-    color: #334155 !important;
-    padding: 7pt 12pt !important;
-    margin: 12pt 0 !important;
-    font-style: italic !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  /* 8. Code & Technical Monospace */
-  .report-content pre {
-    background-color: #f8fafc !important;
-    border: 1pt solid #cbd5e1 !important;
-    border-radius: 3pt !important;
-    padding: 8pt 10pt !important;
-    font-size: 8.5pt !important;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace !important;
-    margin: 10pt 0 !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  .report-content code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace !important;
-    background-color: #f1f5f9 !important;
-    color: #0f172a !important;
-    border: 0.5pt solid #cbd5e1 !important;
-    font-size: 8pt !important;
-    padding: 1pt 3pt !important;
-    border-radius: 2pt !important;
-  }
-
-  /* 9. Citations & References */
-  .report-content a[href^="#"] {
-    color: #1d4ed8 !important;
-    font-weight: 700 !important;
-    font-size: 8.5pt !important;
-    text-decoration: none !important;
-    background: transparent !important;
-    border: none !important;
-    padding: 0 1pt !important;
-  }
-
-  .report-content a[href^="http"] {
-    color: #1d4ed8 !important;
-    text-decoration: underline !important;
-    word-break: break-all !important;
-    overflow-wrap: break-word !important;
-    font-size: 8.5pt !important;
-  }
-
-  /* 10. Page Dimensions & Margins */
-  @page {
-    size: A4 portrait;
-    margin: 16mm 14mm 16mm 14mm;
+  
+  .prose-ledger a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
   }
 }
-

@@ -25,6 +25,7 @@ import {
   Download,
   AlertCircle,
   Sparkles,
+  Compass,
   ArrowRight,
   RotateCcw,
   BookOpen,
@@ -291,7 +292,7 @@ function ResearchConsole() {
           <div className="flex items-center gap-2">
             <Link
               href="/reports"
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border border-border bg-surface text-xs font-mono text-text-secondary hover:text-text-primary hover:bg-surface-secondary transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-none border border-border bg-surface text-xs font-mono text-text-secondary hover:text-text-primary hover:bg-surface-elevated transition-colors"
             >
               <BookOpen className="h-3.5 w-3.5" />
               <span>Browse Archive</span>
@@ -306,7 +307,7 @@ function ResearchConsole() {
               e.preventDefault();
               startResearch();
             }}
-            className="relative flex items-center gap-2 rounded-xl border border-border bg-surface p-2 shadow-xs focus-within:border-accent focus-within:ring-1 focus-within:ring-accent transition-all"
+            className="relative flex items-center gap-2 rounded-none border border-border bg-surface p-2 shadow-xs focus-within:border-accent focus-within:ring-1 focus-within:ring-accent transition-all"
           >
             <div className="flex items-center justify-center pl-3 text-text-muted">
               <Search className="h-5 w-5" />
@@ -325,7 +326,7 @@ function ResearchConsole() {
             <button
               type="submit"
               disabled={isResearching || !query.trim()}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent text-white text-xs sm:text-sm font-semibold hover:bg-accent-hover transition-colors disabled:opacity-50 cursor-pointer shrink-0"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-none bg-accent text-white text-xs sm:text-sm font-semibold hover:bg-accent-hover transition-colors disabled:opacity-50 cursor-pointer shrink-0"
             >
               {isResearching ? (
                 <>
@@ -350,7 +351,7 @@ function ResearchConsole() {
                   key={topic}
                   type="button"
                   onClick={() => startResearch(topic)}
-                  className="px-2.5 py-1 rounded-md border border-border-subtle bg-surface/60 hover:bg-surface-elevated hover:border-accent/40 text-text-secondary hover:text-text-primary text-left text-xs transition-colors"
+                  className="px-2.5 py-1 rounded-none border border-border-subtle bg-surface/60 hover:bg-surface-elevated hover:border-accent/40 text-text-secondary hover:text-text-primary text-left text-xs transition-colors"
                 >
                   {topic.length > 55 ? `${topic.slice(0, 52)}...` : topic}
                 </button>
@@ -360,32 +361,32 @@ function ResearchConsole() {
         </div>
 
         {/* ── Pipeline Tracker ────────────────────────────── */}
-        <div className="mb-6 rounded-xl border border-border bg-surface/50 p-2 sm:p-4 print:hidden">
+        <div className="mb-6 rounded-none border border-border bg-surface/50 p-2 sm:p-4 print:hidden">
           <PipelineTracker stages={stages} />
         </div>
 
         {/* ── Telemetry Ribbon (when active or complete) ──── */}
         {(isResearching || stats.queryCount > 0) && (
-          <div className="mb-6 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 p-3 rounded-xl border border-border bg-surface text-center font-mono text-xs print:hidden">
-            <div className="p-2 rounded-lg bg-surface-secondary">
+          <div className="mb-6 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 p-3 rounded-none border border-border bg-surface text-center font-mono text-xs print:hidden">
+            <div className="p-2 rounded-none bg-surface-elevated">
               <div className="text-text-muted text-[10px] uppercase">Iteration Round</div>
               <div className="text-sm font-semibold text-text-primary mt-0.5">
                 {stats.roundNum} / {stats.maxRounds}
               </div>
             </div>
-            <div className="p-2 rounded-lg bg-surface-secondary">
+            <div className="p-2 rounded-none bg-surface-elevated">
               <div className="text-text-muted text-[10px] uppercase">Formulated Queries</div>
               <div className="text-sm font-semibold text-text-primary mt-0.5">
                 {stats.queryCount}
               </div>
             </div>
-            <div className="p-2 rounded-lg bg-surface-secondary">
+            <div className="p-2 rounded-none bg-surface-elevated">
               <div className="text-text-muted text-[10px] uppercase">Evidence Claims</div>
               <div className="text-sm font-semibold text-accent mt-0.5">
                 {stats.evidenceCount}
               </div>
             </div>
-            <div className="p-2 rounded-lg bg-surface-secondary">
+            <div className="p-2 rounded-none bg-surface-elevated">
               <div className="text-text-muted text-[10px] uppercase">Unique Sources</div>
               <div className="text-sm font-semibold text-text-primary mt-0.5">
                 {stats.sourceCount}
@@ -396,7 +397,7 @@ function ResearchConsole() {
 
         {/* ── Error Banner ────────────────────────────────── */}
         {error && (
-          <div className="mb-6 flex items-start gap-3 rounded-xl border border-error/30 bg-error-subtle p-4 text-xs sm:text-sm text-error print:hidden">
+          <div className="mb-6 flex items-start gap-3 rounded-none border border-error/30 bg-error-subtle p-4 text-xs sm:text-sm text-error print:hidden">
             <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
             <div className="flex-1">
               <span className="font-semibold">Investigation Error:</span> {error}
@@ -420,7 +421,7 @@ function ResearchConsole() {
         {report && (
           <div className="space-y-6">
             {/* Action Bar Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-border bg-surface print:hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-none border border-border bg-surface print:hidden">
               <div className="flex items-center gap-2 text-xs font-mono">
                 <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
                 <span className="font-semibold text-text-primary">Dossier Ready</span>
@@ -432,7 +433,7 @@ function ResearchConsole() {
                 <button
                   type="button"
                   onClick={handleCopyReport}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-surface-secondary text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-surface-elevated transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none border border-border bg-surface-elevated text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-surface-elevated transition-colors"
                 >
                   {copied ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
                   <span>{copied ? "Copied" : "Copy Markdown"}</span>
@@ -441,7 +442,7 @@ function ResearchConsole() {
                 <button
                   type="button"
                   onClick={handleDownloadMarkdown}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-surface-secondary text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-surface-elevated transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none border border-border bg-surface-elevated text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-surface-elevated transition-colors"
                 >
                   <Download className="h-3.5 w-3.5" />
                   <span>Download .md</span>
@@ -457,7 +458,7 @@ function ResearchConsole() {
                     setSubQuestions([]);
                     setQuery("");
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface border border-border text-xs font-medium text-text-muted hover:text-text-primary transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-surface border border-border text-xs font-medium text-text-muted hover:text-text-primary transition-colors"
                   title="Reset and start new investigation"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
@@ -467,7 +468,7 @@ function ResearchConsole() {
             </div>
 
             {/* Dossier Document Container */}
-            <article className="rounded-xl border border-border bg-surface-secondary p-6 sm:p-10 shadow-xs">
+            <article className="rounded-none border border-border bg-surface-elevated p-6 sm:p-10 shadow-xs">
               {/* Publication Print Header Banner */}
               <div className="hidden print:block print-dossier-banner">
                 <div className="banner-top">
@@ -495,9 +496,9 @@ function ResearchConsole() {
 
         {/* ── Empty State ─────────────────────────────────── */}
         {!isResearching && activityLog.length === 0 && !report && (
-          <div className="py-16 text-center border border-dashed border-border rounded-xl bg-surface/30 p-8 max-w-2xl mx-auto">
-            <div className="h-12 w-12 rounded-xl border border-border bg-surface flex items-center justify-center mx-auto mb-4 text-text-muted">
-              <Sparkles className="h-6 w-6 text-accent" />
+          <div className="py-16 text-center border border-dashed border-border rounded-none bg-surface/30 p-8 max-w-2xl mx-auto">
+            <div className="h-12 w-12 rounded-none border border-border bg-surface flex items-center justify-center mx-auto mb-4 text-text-muted">
+              <Compass className="h-6 w-6 text-accent" />
             </div>
             <h2 className="text-lg font-semibold text-text-primary mb-1">
               Awaiting Research Objective
@@ -519,7 +520,7 @@ export default function ResearchPage() {
         <div className="flex flex-col min-h-screen bg-background text-foreground">
           <Navbar />
           <div className="flex-1 flex items-center justify-center p-8">
-            <div className="h-7 w-7 rounded-full border-2 border-accent border-t-transparent animate-spin" />
+            <div className="h-7 w-7 rounded-none border-2 border-accent border-t-transparent animate-spin" />
           </div>
         </div>
       }
@@ -528,4 +529,5 @@ export default function ResearchPage() {
     </Suspense>
   );
 }
+
 

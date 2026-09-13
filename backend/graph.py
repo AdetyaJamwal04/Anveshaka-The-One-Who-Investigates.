@@ -15,12 +15,11 @@ if backend_dir not in sys.path:
 
 from datetime import datetime
 from typing import List, cast
-from typing_extensions import TypedDict
+from typing import TypedDict
 from langgraph.graph import StateGraph, END
 import asyncio
 
-if hasattr(sys.stdout, "reconfigure"):
-    getattr(sys.stdout, "reconfigure")(encoding="utf-8")
+
 
 from schemas.schema import QuerySynthesis, SubQuestion, SearchQuery, SearchResult, SubQuestionVerdict
 from agents.knowledge_store import KnowledgeStore
@@ -195,3 +194,4 @@ async def run_research(query: str | None = None) -> str:
 
 if __name__ == "__main__":
     asyncio.run(run_research())
+

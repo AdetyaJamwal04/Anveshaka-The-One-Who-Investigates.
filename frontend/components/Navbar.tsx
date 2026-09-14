@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useTheme } from "./ThemeProvider";
 import { Moon, Sun, Beaker, FileText, Database } from "lucide-react";
 
@@ -11,7 +13,7 @@ export default function Navbar() {
       <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
         
         {/* Wordmark */}
-        <div className="flex items-center gap-4">
+        <Link href="/" className="flex items-center gap-4 hover:opacity-85 transition-opacity">
           <div className="flex flex-col">
             <h1 className="font-serif text-xl font-medium text-text-primary tracking-tight">
               ANVESHAKA <span className="text-text-muted text-sm tracking-normal font-sans ml-1">// 01</span>
@@ -20,7 +22,7 @@ export default function Navbar() {
               Autonomous Research Expedition
             </span>
           </div>
-        </div>
+        </Link>
 
         {/* Minimal Nav */}
         <nav className="hidden md:flex items-center gap-8">
@@ -52,9 +54,12 @@ export default function Navbar() {
             )}
           </button>
           
-          <button className="px-4 py-2 bg-accent text-background text-xs font-semibold uppercase tracking-wider border border-accent hover:bg-accent-hover transition-colors">
+          <Link
+            href="/"
+            className="px-4 py-2 bg-accent text-background text-xs font-semibold uppercase tracking-wider border border-accent hover:bg-accent-hover transition-colors inline-block"
+          >
             New Expedition
-          </button>
+          </Link>
         </div>
       </div>
     </header>

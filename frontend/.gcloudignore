@@ -1,0 +1,22 @@
+.gcloudignore
+.git/
+.gitignore
+.firebaseignore
+
+# Dependencies & Build artifacts
+node_modules/
+.next/
+.swc/
+
+# Environment files
+.env
+.env.*
+.env.local
+
+# Tooling & Tests
+.agents/
+.claude/
+.gemini/
+.vscode/
+skills-lock.json
+coverage/

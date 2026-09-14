@@ -5,6 +5,11 @@
     "ignore": [
       "node_modules",
       ".git",
+      ".next",
+      ".env*",
+      ".agents",
+      ".claude",
+      "skills-lock.json",
       "firebase-debug.log",
       "firebase-debug.*.log",
       "functions"

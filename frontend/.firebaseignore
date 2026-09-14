@@ -1,0 +1,38 @@
+# Firebase ignore
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+
+# Node dependencies & build artifacts
+node_modules/
+.next/
+.swc/
+out/
+build/
+dist/
+
+# Local environment files -- never upload secrets
+.env
+.env.*
+.env.local
+
+# Agent tools & IDE configuration
+.agents/
+.claude/
+.gemini/
+.vscode/
+skills-lock.json
+AGENTS.md
+CLAUDE.md
+
+# Testing & Coverage
+coverage/
+playwright-report/
+test-results/
+
+# System & Git
+.git/
+.gitignore
+.DS_Store
+Thumbs.db
+*.tsbuildinfo

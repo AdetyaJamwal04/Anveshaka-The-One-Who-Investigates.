@@ -49,6 +49,7 @@ export interface SSEEvent {
   round_num?: number;
   verdicts?: Verdict[];
   report?: string;
+  dossier_id?: string;
   error?: string;
 }
 
@@ -90,9 +91,20 @@ export interface ReportSummary {
   path: string;
   size_bytes: number;
   modified: string;
+  query?: string;
+  intent?: string;
+  sources_count?: number;
+  claims_count?: number;
+  read_time_minutes?: number;
 }
 
 export interface ReportDetail {
   filename: string;
   content: string;
+  id?: string;
+  query?: string;
+  created_at?: string;
+  read_time_minutes?: number;
+  sources_count?: number;
+  claims_count?: number;
 }

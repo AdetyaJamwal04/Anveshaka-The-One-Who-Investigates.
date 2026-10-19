@@ -4,7 +4,9 @@ __pycache__/
 .pytest_cache/
 *.ipynb
 *.lock
-reports/
+/reports/
+*.db
+*.sqlite3
 test_direct.py
 test_stream.py
 .gemini/
@@ -23,3 +25,6 @@ frontend/.agents/
 frontend/.claude/
 frontend/skills-lock.json
 
+
+firebase-debug.log
+firebase-debug.*.log

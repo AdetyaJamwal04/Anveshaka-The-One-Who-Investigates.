@@ -60,12 +60,18 @@ class ResearchRequest(BaseModel):
 class ResearchResponse(BaseModel):
     query: str
     report: str
+    dossier_id: str = ""
 
 class ReportSummary(BaseModel):
     filename: str
-    path: str
-    size_bytes: int
+    path: str = ""
+    size_bytes: int = 0
     modified: str
+    query: str = ""
+    intent: str = "research"
+    sources_count: int = 0
+    claims_count: int = 0
+    read_time_minutes: int = 1
 
 
 # ── Health & Info Endpoints ─────────────────────────────────────
@@ -82,6 +88,21 @@ async def root():
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+@app.get("/health/live")
+async def liveness():
+    return {"status": "alive", "timestamp": datetime.now().isoformat()}
+
+@app.get("/health/ready")
+async def readiness():
+    checks = {"llm": "configured", "storage": "ready"}
+    try:
+        store = get_dossier_store()
+        await store.list_dossiers(limit=1)
+    except Exception as e:
+        checks["storage"] = f"error: {e}"
+        return JSONResponse(status_code=503, content={"status": "degraded", "checks": checks})
+    return {"status": "ready", "checks": checks}
 
 
 # ── POST /research (blocking) ───────────────────────────────────
@@ -251,33 +272,78 @@ os.makedirs(REPORTS_DIR, exist_ok=True)
 
 @app.get("/reports")
 async def list_reports():
-    """List all saved research reports."""
-    if not os.path.isdir(REPORTS_DIR):
-        return []
+    """List all saved research dossiers from persistent storage."""
+    summaries = []
+    seen_ids = set()
+    
+    # 1. Query structured persistence store
+    try:
+        store = get_dossier_store()
+        records = await store.list_dossiers(limit=100)
+        for r in records:
+            seen_ids.add(r.id)
+            seen_ids.add(f"{r.id}.md")
+            summaries.append(ReportSummary(
+                filename=f"{r.id}.md",
+                path=os.path.join(REPORTS_DIR, f"{r.id}.md"),
+                size_bytes=len(r.report_markdown.encode("utf-8")),
+                modified=r.created_at,
+                query=r.query,
+                intent=r.intent,
+                sources_count=r.sources_count,
+                claims_count=r.claims_count,
+                read_time_minutes=r.read_time_minutes,
+            ))
+    except Exception as e:
+        print(f"[API] Error querying dossier store: {e}")
 
-    reports = []
-    for filepath in sorted(glob.glob(os.path.join(REPORTS_DIR, "*.md")), reverse=True):
-        stat = os.stat(filepath)
-        reports.append(ReportSummary(
-            filename=os.path.basename(filepath),
-            path=filepath,
-            size_bytes=stat.st_size,
-            modified=str(stat.st_mtime),
-        ))
-    return reports
+    # 2. Backfill with any loose files on disk not indexed in store
+    if os.path.isdir(REPORTS_DIR):
+        for filepath in sorted(glob.glob(os.path.join(REPORTS_DIR, "*.md")), reverse=True):
+            fname = os.path.basename(filepath)
+            if fname not in seen_ids:
+                stat = os.stat(filepath)
+                summaries.append(ReportSummary(
+                    filename=fname,
+                    path=filepath,
+                    size_bytes=stat.st_size,
+                    modified=str(stat.st_mtime),
+                ))
+
+    return summaries
 
 
 @app.get("/reports/{filename}")
 async def get_report(filename: str):
-    """Retrieve a specific saved report by filename."""
-    filepath = os.path.join(REPORTS_DIR, filename)
-    if not os.path.isfile(filepath):
-        raise HTTPException(status_code=404, detail="Report not found.")
+    """Retrieve a specific saved dossier by ID or filename."""
+    clean_id = filename.replace(".md", "")
     
-    with open(filepath, "r", encoding="utf-8") as f:
-        content = f.read()
-    
-    return {"filename": filename, "content": content}
+    # 1. Check persistent store
+    try:
+        store = get_dossier_store()
+        record = await store.get_dossier(clean_id)
+        if record:
+            return {
+                "filename": f"{record.id}.md",
+                "id": record.id,
+                "query": record.query,
+                "content": record.report_markdown,
+                "created_at": record.created_at,
+                "read_time_minutes": record.read_time_minutes,
+                "sources_count": record.sources_count,
+                "claims_count": record.claims_count,
+            }
+    except Exception as e:
+        print(f"[API] Error retrieving dossier from store: {e}")
+
+    # 2. Check local filesystem fallback
+    filepath = os.path.join(REPORTS_DIR, filename if filename.endswith(".md") else f"{filename}.md")
+    if os.path.isfile(filepath):
+        with open(filepath, "r", encoding="utf-8") as f:
+            content = f.read()
+        return {"filename": os.path.basename(filepath), "content": content}
+
+    raise HTTPException(status_code=404, detail="Dossier not found.")
 
 
 if __name__ == "__main__":

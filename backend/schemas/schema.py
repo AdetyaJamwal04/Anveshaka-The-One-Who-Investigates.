@@ -45,6 +45,7 @@ class SearchResult(BaseModel):
     title: str
     content: str
     score: float = 0.0
+    provider: str = "tavily"
     
 class Evidence(BaseModel):
     sub_question_id: str
@@ -57,3 +58,19 @@ class SubQuestionVerdict(BaseModel):
     verdict: Literal["sufficient", "needs_more"]
     gap: str                                        # what's missing (empty if sufficient)
     suggested_angles: list[str] = []                # new search angles to try (empty if sufficient)
+
+
+class ResearchRecord(BaseModel):
+    id: str
+    query: str
+    report_markdown: str
+    intent: str = "research"
+    architecture: str = "multi_question"
+    scope: str = "moderate"
+    entities: list[str] = Field(default_factory=list)
+    sub_questions: list[str] = Field(default_factory=list)
+    sources_count: int = 0
+    claims_count: int = 0
+    rounds_executed: int = 1
+    created_at: str
+    read_time_minutes: int = 1

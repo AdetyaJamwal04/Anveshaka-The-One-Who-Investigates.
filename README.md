@@ -178,7 +178,8 @@ Anveshaka/
 │   │   ├── test_knowledge_store.py   # Knowledge store accessor tests
 │   │   ├── test_search_query_gen.py  # Coverage fill tests
 │   │   └── test_utils.py             # Slug generation tests
-│   ├── api.py                        # FastAPI server with SSE streaming
+│   ├── storage.py                    # SQLite persistence & metadata indexing
+├── api.py                        # FastAPI server with SSE streaming & health probes
 │   ├── graph.py                      # LangGraph state machine
 │   ├── main.py                       # CLI runner (imperative loop)
 │   ├── config.py                     # Environment config loader
@@ -188,6 +189,7 @@ Anveshaka/
 │   ├── app/
 │   │   ├── page.tsx                  # Aurora landing page
 │   │   ├── research/page.tsx         # Live research dashboard
+│   │   ├── reports/page.tsx          # Permanent Dossier Archive with metrics
 │   │   ├── report/[id]/page.tsx      # Cited report viewer with ToC
 │   │   ├── layout.tsx                # Inter font & SEO layout
 │   │   └── globals.css               # Linear/Vercel dark design tokens
@@ -199,12 +201,17 @@ Anveshaka/
 │   ├── lib/
 │   │   ├── api.ts                    # Backend SSE & REST client
 │   │   └── types.ts                  # TypeScript types
+│   ├── apphosting.yaml               # Firebase App Hosting config
+│   ├── firebase.json                 # Firebase deployment config
+│   ├── .firebaseignore               # Firebase deployment ignore rules
+│   ├── .gcloudignore                 # Frontend Cloud Build ignore rules
 │   └── package.json
 ├── examples/
 │   └── sample_report_creatine_supplementation.md
 ├── assets/
 │   └── architecture.jpg              # Architecture diagram
 ├── reports/                          # Saved markdown reports
+├── .gcloudignore                     # Backend Cloud Run ignore rules
 ├── pyproject.toml                    # Python dependencies & pytest config
 └── .env                              # API keys
 ```

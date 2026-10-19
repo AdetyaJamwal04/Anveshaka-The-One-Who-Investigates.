@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { useTheme } from "./ThemeProvider";
 import { Moon, Sun, Beaker, FileText, Database } from "lucide-react";
 
 export default function Navbar() {
   const { theme, setTheme, resolvedTheme } = useTheme();
+  const pathname = usePathname();
 
   return (
     <header className="w-full border-b border-border bg-background">
@@ -26,18 +28,35 @@ export default function Navbar() {
 
         {/* Minimal Nav */}
         <nav className="hidden md:flex items-center gap-8">
-          <a href="#" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-text-primary border-b-2 border-accent pb-1 -mb-1">
+          <Link
+            href="/research"
+            className={`flex items-center gap-2 text-xs font-semibold uppercase tracking-wider transition-colors pb-1 -mb-1 ${
+              pathname === "/" || pathname === "/research"
+                ? "text-text-primary border-b-2 border-accent"
+                : "text-text-muted hover:text-text-primary"
+            }`}
+          >
             <Beaker className="h-3.5 w-3.5" />
             Active Expeditions
-          </a>
-          <a href="#" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-text-muted opacity-50 cursor-not-allowed" title="Coming Soon" onClick={(e) => e.preventDefault()}>
+          </Link>
+          <Link
+            href="/reports"
+            className={`flex items-center gap-2 text-xs font-semibold uppercase tracking-wider transition-colors pb-1 -mb-1 ${
+              pathname.startsWith("/report")
+                ? "text-text-primary border-b-2 border-accent"
+                : "text-text-muted hover:text-text-primary"
+            }`}
+          >
             <FileText className="h-3.5 w-3.5" />
             Primary Dossiers
-          </a>
-          <a href="#" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-text-muted opacity-50 cursor-not-allowed" title="Coming Soon" onClick={(e) => e.preventDefault()}>
+          </Link>
+          <span
+            className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-text-muted opacity-60 cursor-default"
+            title="Evidence provenance & multi-provider audit active"
+          >
             <Database className="h-3.5 w-3.5" />
             Provenance
-          </a>
+          </span>
         </nav>
 
         {/* Controls */}

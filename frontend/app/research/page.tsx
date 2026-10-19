@@ -28,6 +28,7 @@ import {
   Compass,
   ArrowRight,
   RotateCcw,
+  ExternalLink,
   BookOpen,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
@@ -78,6 +79,7 @@ function ResearchConsole() {
   const [error, setError] = useState<string | null>(null);
   const [currentStage, setCurrentStage] = useState<string>("Synthesize");
   const [copied, setCopied] = useState(false);
+  const [dossierId, setDossierId] = useState<string | null>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
   const entryIdRef = useRef(0);
 
@@ -114,6 +116,9 @@ function ResearchConsole() {
       // Final report completion
       if (event.node === "END" && event.report) {
         setReport(String(event.report));
+        if (event.dossier_id) {
+          setDossierId(event.dossier_id);
+        }
         setStages((prev) => prev.map((s) => ({ ...s, status: "completed" })));
         addActivity("Autonomous investigation complete. Synthesis finalized.", "success");
         return;
@@ -447,6 +452,16 @@ function ResearchConsole() {
                   <Download className="h-3.5 w-3.5" />
                   <span>Download .md</span>
                 </button>
+
+                {dossierId && (
+                  <Link
+                    href={`/report/${encodeURIComponent(dossierId)}`}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none border border-accent bg-accent text-background text-xs font-semibold hover:bg-accent-hover transition-colors"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    <span>Permanent Dossier</span>
+                  </Link>
+                )}
 
                 <ExportPdfButton title={query || "Anveshaka Research Dossier"} />
 

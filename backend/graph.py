@@ -31,10 +31,12 @@ from agents.content_processor import extract_evidence
 from agents.reflection import reflect
 from agents.report_synthesizer import synthesize_report
 from utils import slugify_topic
+from storage import get_dossier_store
+from schemas.schema import ResearchRecord
 
 MAX_ROUNDS = int(os.getenv("MAX_ROUNDS", "2"))
 
-class ResearchState(TypedDict):
+class ResearchState(TypedDict, total=False):
     query: str
     synthesis: QuerySynthesis
     sub_questions: List[SubQuestion]
@@ -44,6 +46,7 @@ class ResearchState(TypedDict):
     verdicts: List[SubQuestionVerdict]
     round_num: int
     report_markdown: str
+    dossier_id: str
 
 async def synthesize_node(state: ResearchState) -> dict:
     print("\n[Node: Synthesize] Analyzing original query...")
@@ -116,7 +119,13 @@ async def reflect_node(state: ResearchState) -> dict:
     return {"verdicts": verdicts, "round_num": state["round_num"] + 1}
 
 def should_continue(state: ResearchState) -> str:
-    if state["round_num"] > MAX_ROUNDS:
+    synthesis = state.get("synthesis")
+    # Fast-track optimization: narrow single-question queries cap at 1 round for ultra-fast throughput
+    if synthesis and getattr(synthesis, "query_architecture", "") == "single_question" and getattr(synthesis, "scope", "") == "narrow":
+        return "report"
+
+    max_rounds = int(os.getenv("MAX_ROUNDS", "2"))
+    if state.get("round_num", 1) > max_rounds:
         return "report"
     
     all_sufficient = all(v.verdict == "sufficient" for v in state.get("verdicts", []))
@@ -129,10 +138,47 @@ async def report_node(state: ResearchState) -> dict:
     print(f"\n============================================================")
     print(f"  Final Report Synthesis")
     print(f"============================================================")
-    print(f"[Node: Report] Generating detailed markdown report from {len(state['store'].evidence)} claims...")
-    report = await synthesize_report(state["query"], state["store"])
-    print(f"\n✅ Anveshaka complete!")
-    return {"report_markdown": report}
+    store = state["store"]
+    print(f"[Node: Report] Generating detailed markdown report from {len(store.evidence)} claims...")
+    report = await synthesize_report(state["query"], store)
+
+    # Generate persistent record & save to dossier store
+    synthesis = state.get("synthesis")
+    entities = synthesis.entities if synthesis else []
+    sub_questions = [sq.text for sq in state.get("sub_questions", [])]
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    topic_slug = slugify_topic(state["query"], entities)
+    dossier_id = f"{topic_slug}_{timestamp}"
+    words = len(report.split())
+
+    record = ResearchRecord(
+        id=dossier_id,
+        query=state["query"],
+        report_markdown=report,
+        intent=synthesis.intent if synthesis else "research",
+        architecture=synthesis.query_architecture if synthesis else "multi_question",
+        scope=synthesis.scope if synthesis else "moderate",
+        entities=entities,
+        sub_questions=sub_questions,
+        sources_count=len(set(e.source_url for e in store.evidence)),
+        claims_count=len(store.evidence),
+        rounds_executed=state.get("round_num", 1),
+        created_at=datetime.now().isoformat(),
+        read_time_minutes=max(1, words // 200),
+    )
+
+    try:
+        dossier_store = get_dossier_store()
+        await dossier_store.save_dossier(record)
+        print(f"  -> Dossier successfully persisted with ID: {dossier_id}")
+    except Exception as e:
+        print(f"[Node: Report] Warning: Could not persist dossier to store: {e}")
+
+    print(f"\n✓ Anveshaka complete!")
+    return {
+        "report_markdown": report,
+        "dossier_id": dossier_id,
+    }
 
 # Graph Construction
 workflow = StateGraph(ResearchState)
